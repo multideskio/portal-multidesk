@@ -58,7 +58,7 @@ class Login extends ResourceController
             throw new RuntimeException(implode('. ', $validation->getErrors()));
          }
 
-         // Chama o método para autenticar o administrador
+         // Chama o méthodo para autenticar o administrador
          $this->authLibrarie->loginAdmin($input);
 
          // Retorna uma resposta de sucesso com uma mensagem
