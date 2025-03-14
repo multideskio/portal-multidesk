@@ -5,4 +5,9 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
-$routes->get('/', 'Home::index');
+
+$routes->get("/", 'Login::index');
+$routes->get("login", 'Login::index');
+$routes->get("registrar", 'Login::registrar');
+$routes->get("recuperar", 'Login::recuperar');
+
