@@ -47,3 +47,7 @@
     </form>
     <!-- LOGIN FORM END -->
 <?= $this->endSection() ?>
+
+<?= $this->section('js') ?>
+<script src="/assets/js/login.js"></script>
+<?= $this->endSection() ?>

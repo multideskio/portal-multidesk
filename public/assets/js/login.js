@@ -5,13 +5,15 @@ document.getElementById("signInForm").addEventListener("submit", async (event) =
     const password = document.getElementById("loginPassword").value;
 
     try {
+        // Cria um objeto FormData para enviar os dados como multipart/form-data
+        const formData = new FormData();
+        formData.append("email", email);
+        formData.append("password", password);
+
         // Requisição única para realizar login e criar a sessão
-        const loginResponse = await fetch('/api/v1/login', {
+        const loginResponse = await fetch('login', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({email, password})
+            body: formData
         });
 
         if (!loginResponse.ok) {
@@ -28,8 +30,8 @@ document.getElementById("signInForm").addEventListener("submit", async (event) =
     }
 });
 
-const userData = localStorage.getItem('userData');
-if (userData) {
-    localStorage.removeItem('userData');
-    window.location.href = '/logout';
-}
+// const userData = localStorage.getItem('userData');
+// if (userData) {
+//     localStorage.removeItem('userData');
+//     window.location.href = '/logout';
+// }

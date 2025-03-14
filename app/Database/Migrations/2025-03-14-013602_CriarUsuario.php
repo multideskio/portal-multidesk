@@ -63,6 +63,11 @@ class CriarUsuario extends Migration
             'type' => 'VARCHAR',
             'constraint' => 255,
          ],
+         'roles' => [
+            'type' => 'JSON',
+            'null' => true,
+            'comment' => 'Modulos que deveram ser bloqueados no acesso do usuario, se não houve modulos bloqueados, todo o sistema é liberado.'
+         ],
          'created_at' => [
             'type' => 'DATETIME',
             'null' => true,

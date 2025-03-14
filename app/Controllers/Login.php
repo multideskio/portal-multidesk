@@ -19,6 +19,10 @@ class Login extends BaseController
     {
         return view('login/recuperar');
     }
+   public function confirmar($id = null): string
+   {
+      return view('login/confirmar');
+   }
     public function alterar(): string{
        return view('login/alterar');
     }
