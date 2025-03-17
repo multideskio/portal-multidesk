@@ -17,7 +17,7 @@ class EmailLibrarie
       $config['SMTPPass'] = env('SMTP_PASS');
       $config['SMTPPort'] = (int)env('SMTP_PORT');
       $config['SMTPCrypto'] = env('SMTP_CRYPTO');
-
+      $config['mailType'] = 'html';
       $this->email->initialize($config);
    }
 
