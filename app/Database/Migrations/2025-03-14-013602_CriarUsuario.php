@@ -24,14 +24,17 @@ class CriarUsuario extends Migration
          'nome' => [
             'type' => 'VARCHAR',
             'constraint' => 80,
+            'null' => true,
          ],
          'sobrenome' => [
             'type' => 'VARCHAR',
             'constraint' => 80,
+            'null' => true,
          ],
          'telefone' => [
             'type' => 'VARCHAR',
             'constraint' => 30,
+            'null' => true,
          ],
          'cpf' => [
             'type' => 'VARCHAR',
@@ -62,6 +65,7 @@ class CriarUsuario extends Migration
          'foto' => [
             'type' => 'VARCHAR',
             'constraint' => 255,
+            'null' => true,
          ],
          'roles' => [
             'type' => 'JSON',
