@@ -5,6 +5,7 @@ namespace App\Libraries;
 use App\Models\ClienteModel;
 use App\Models\UsuarioModel;
 use Exception;
+use JsonException;
 use RuntimeException;
 
 class AuthLibrarie
@@ -20,6 +21,9 @@ class AuthLibrarie
       $this->session = session();
    }
 
+   /**
+    * @throws JsonException
+    */
    public function loginAdmin($input): void
    {
       // Busca o usuário no banco de dados pelo e-mail fornecido
@@ -45,7 +49,7 @@ class AuthLibrarie
          'nome' => $usuario[0]['nome'],
          'email' => $usuario[0]['email'],
          'foto' => $usuario[0]['foto'],
-         'roles' => $usuario[0]['roles'] ?? [] // Garante que 'roles' seja um array, mesmo se não definido
+         'roles' => json_decode($usuario[0]['roles'], false, 512, JSON_THROW_ON_ERROR) ?? [] // Garante que 'roles' seja um array, mesmo se não definido
       ];
 
       // Armazena os dados na sessão
