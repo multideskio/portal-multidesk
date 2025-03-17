@@ -23,6 +23,7 @@ class CriarEmpresa extends Migration
          'cnpj' => [
             'type' => 'VARCHAR',
             'constraint' => 30,
+            'null' => true,
          ],
          'created_at' => [
             'type' => 'DATETIME',
