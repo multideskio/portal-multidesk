@@ -25,32 +25,141 @@
 
 <?= $this->section('js') ?>
 <script>
-    const inputs = document.querySelectorAll('.geex-content__authentication__form-group__code input');
+    // Função Utilitária para Consultar Parâmetro na URL
+    function getQueryParam(key) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(key);
+    }
 
-    inputs.forEach((input, idx) => {
-        // Tratamento para digitação normal
+    // Função para Mascarar o Email
+    function maskEmail(email) {
+        if (!email) return ""; // Retorna vazio se o e-mail não for fornecido
+
+        const atIndex = email.indexOf('@');
+        if (atIndex === -1) return email; // Retorna o e-mail original caso não seja válido
+
+        const firstPart = email.substring(0, 4); // Pegando os primeiros 4 caracteres
+        const domain = email.substring(atIndex); // Pegando o domínio (incluindo @)
+        const maskedLength = Math.max(atIndex - 4, 0);
+
+        return firstPart + "*".repeat(maskedLength) + domain;
+    }
+
+    // Função para Obter o Código de Verificação
+    function getVerificationCode() {
+        const inputs = document.querySelectorAll('.geex-content__authentication__form-group__code input');
+        return Array.from(inputs)
+            .map(input => input.value)
+            .join('');
+    }
+
+    // Função para Exibir Alertas de Status com Swal
+    // Função para Exibir Alertas de Status com Swal
+    function showAlert({ title, text, icon, confirmButton = true, timer = null }) {
+        return Swal.fire({ // O 'return' foi adicionado
+            title,
+            text,
+            icon,
+            showConfirmButton: confirmButton,
+            allowOutsideClick: !confirmButton,
+            timer,
+        });
+    }
+
+    // Função Assíncrona para Enviar o Formulário
+    async function submitForm(event) {
+        event.preventDefault();
+
+        const email = getQueryParam('email');
+        const token = window.location.pathname.split('/').pop();
+        const verificationCode = getVerificationCode();
+
+        if (!email || verificationCode.length !== 6) {
+            showAlert({
+                title: 'Erro',
+                text: 'Os dados fornecidos estão incompletos! Verifique e tente novamente.',
+                icon: 'error',
+            });
+            return;
+        }
+
+        // Dados para o Formulário
+        const formData = new FormData();
+        formData.append("email", email);
+        formData.append("code", verificationCode);
+
+        try {
+            // Exibe o carregamento
+            showAlert({
+                title: 'Aguardando...',
+                text: 'Processando seu cadastro',
+                icon: 'info',
+                confirmButton: false,
+            });
+
+            const response = await fetch(`${base_url}confirmar/${token}`, {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error('Código inválido. Verifique e tente novamente.');
+            }
+
+            // Confirmação de Sucesso
+            showAlert({
+                title: 'Sucesso!',
+                text: 'Seu cadastro foi confirmado com sucesso',
+                icon: 'success',
+                confirmButton: true,
+                timer: null,
+            }).then(() => {
+                //window.location.href = `/login?confirm=true&email=${email}`;
+            });
+        } catch (error) {
+            showAlert({
+                title: 'Erro',
+                text: error.message || 'Erro desconhecido ao processar sua solicitação',
+                icon: 'error',
+            });
+        }
+    }
+
+    // Inicialização do Código
+    function initializeForm() {
+        const email = getQueryParam('email');
+        const maskedEmail = maskEmail(email);
+
+        const emailElement = document.querySelector('.verification-number');
+        if (emailElement) {
+            emailElement.textContent = maskedEmail;
+        }
+
+        const signInForm = document.querySelector('#signInForm');
+        if (signInForm) {
+            signInForm.addEventListener('submit', submitForm);
+        }
+    }
+
+    // Inicializa o Código na Carga da Página
+    document.addEventListener('DOMContentLoaded', initializeForm);
+
+    // Tratamento dos Inputs do Código de Verificação
+    document.querySelectorAll('.geex-content__authentication__form-group__code input').forEach((input, idx, inputs) => {
         input.addEventListener('input', (e) => {
-            // Verifica se mais de um caractere foi inserido
             if (e.target.value.length > 1) {
                 const values = e.target.value.split('');
                 inputs.forEach((inp, index) => inp.value = values[index] || '');
                 inputs[values.length - 1]?.focus();
             } else {
-                // Avança ou volta entre os campos na digitação
-                if (e.target.value && idx < inputs.length - 1) {
-                    inputs[idx + 1].focus();
-                } else if (!e.target.value && idx > 0) {
-                    inputs[idx - 1].focus();
-                }
+                if (e.target.value && idx < inputs.length - 1) inputs[idx + 1].focus();
+                else if (!e.target.value && idx > 0) inputs[idx - 1].focus();
             }
         });
 
-        // Tratamento para colagem
         input.addEventListener('paste', (e) => {
-            // Obtém o texto colado
             const pasteData = (e.clipboardData || window.clipboardData).getData('text');
             if (pasteData.length === inputs.length) {
-                // Distribui os valores colados de forma proporcional
                 const values = pasteData.split('');
                 inputs.forEach((inp, index) => inp.value = values[index]);
                 inputs[inputs.length - 1].focus();
@@ -58,37 +167,5 @@
             }
         });
     });
-</script>
-
-<script>
-    // Função para obter o valor de um parâmetro na URL
-    function getQueryParam(key) {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get(key);
-    }
-
-    // Função para mascarar o e-mail
-    function maskEmail(email) {
-        if (!email) return ""; // Retorna vazio se o e-mail não for fornecido
-
-        const atIndex = email.indexOf('@'); // Índice do símbolo '@'
-        if (atIndex === -1) return email; // Retorna o e-mail original caso não seja válido
-
-        const firstPart = email.substring(0, 4); // Pegando os primeiros 4 caracteres
-        const domain = email.substring(atIndex); // Pegando o domínio (incluindo @)
-        const maskedLength = Math.max(atIndex - 4, 0); // Calculando quantos '*' devem ser colocados
-
-        return firstPart + "*".repeat(maskedLength) + domain;
-    }
-
-    // Obtendo o e-mail do parâmetro na URL
-    const email = getQueryParam('email');
-    const maskedEmail = maskEmail(email);
-
-    // Renderizando no elemento HTML
-    const emailElement = document.querySelector('.verification-number');
-    if (emailElement) {
-        emailElement.textContent = maskedEmail;
-    }
 </script>
 <?= $this->endSection() ?>
