@@ -95,6 +95,15 @@
             const formData = new FormData();
             formData.append("email", email);
             formData.append("password", password);
+
+            Swal.fire({
+                title: 'Aguarde...',
+                text: 'Processando seu cadastro',
+                icon: 'info',
+                showConfirmButton: false,
+                allowOutsideClick: false
+            })
+
             try {
                 const response = await fetch('/registrar', {
                     method: 'POST',
@@ -102,13 +111,27 @@
                 });
                 if (!response.ok) {
                     const errorData = await response.json();
-                    throw new Error(errorData.message || 'Erro ao realizar cadastro. Tente novamente.');
+                    throw new Error(errorData.messages.error || 'Erro ao realizar cadastro. Tente novamente.');
                 }
                 const responseData = await response.json();
-                window.location.href = `/confirmar/${responseData.token}`;
+
+                Swal.fire({
+                    title: 'Sucesso!',
+                    text: 'Cadastro realizado com sucesso!',
+                    icon: 'success',
+                    confirmButtonText: 'Ok'
+                }).then((result) => {
+                    window.location.href = `/confirmar/${responseData.token}`;
+                });
             } catch (error) {
+                Swal.fire({
+                    title: 'Erro!',
+                    text: error.message,
+                    icon: 'error',
+                    confirmButtonText: 'Ok'
+                })
                 console.error('Erro:', error);
-                alert(error.message);
+                //alert(error.message);
             }
         });
 
