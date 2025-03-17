@@ -19,6 +19,7 @@ use RuntimeException;
 class Login extends ResourceController
 {
    use ResponseTrait;
+
    protected AuthLibrarie $authLibrarie;
    private UuidInterface $uuid;
 
@@ -60,6 +61,7 @@ class Login extends ResourceController
 
          // Chama o méthodo para autenticar o administrador
          $this->authLibrarie->loginAdmin($input);
+
 
          // Retorna uma resposta de sucesso com uma mensagem
          return $this->respond(['message' => 'Login realizado com sucesso']);
@@ -105,6 +107,11 @@ class Login extends ResourceController
          // Gera um código de verificação aleatório de 6 dígitos
          $code = random_int(100000, 999999);
 
+         $verify = $modelUsuario->where('email', $input['email'])->countAllResults();
+         if ($verify > 0) {
+            throw new RuntimeException('Esse e-mail já está em uso no sistema.');
+         }
+
          // Insere o usuário no banco de dados com os campos fornecidos
          $modelUsuario->insert([
             'email' => $input['email'],
@@ -115,19 +122,71 @@ class Login extends ResourceController
          ]);
 
          // Envia um e-mail para o usuário com o código de verificação
+         $view = view('login/emails/codigo', ['code' => $code, 'email' => $input['email']]);
+
          $emailLibraries = new EmailLibrarie();
-         $emailLibraries->sendEmail($input['email'], 'Código', 'Code: ' . $code);
+         $emailLibraries->sendEmail($input['email'], 'Código', $view);
 
          // Finaliza a transação do banco de dados
          $db->transComplete();
 
          // Retorna uma resposta de sucesso contendo o token gerado
-         return $this->respond(['token' => $token.'?email='.$input['email']]);
+         return $this->respond(['token' => $token . '?email=' . $input['email']]);
       } catch (Exception $e) {
          // Em caso de erro, realiza o rollback da transação
          $db->transRollback();
 
          // Retorna uma resposta de falha com a mensagem da exceção
+         return $this->fail($e->getMessage());
+      }
+   }
+
+   /**
+    * Confirma a verificação da conta do usuário através de um token
+    *
+    * Este méthodo valida o código de verificação enviado pelo usuário junto com seu email.
+    * Se os dados estiverem corretos, atualiza o status da conta para verificado e
+    * gera novos códigos de segurança.
+    *
+    * @param string|null $token Token de verificação
+    * @return ResponseInterface Retorna uma resposta de sucesso se a conta for verificada
+    * ou uma mensagem de erro caso ocorra alguma exceção
+    */
+   public function confirmar(string $token = null): ResponseInterface
+   {
+      try {
+         // Obtém os dados enviados na requisição POST
+         $input = $this->request->getPost();
+
+         $modelUsuario = new UsuarioModel();
+
+         // Busca o usuário que corresponde ao email, código e token fornecidos
+         $user = $modelUsuario->where(
+            [
+               'email' => $input['email'],
+               'code' => $input['code'],
+               'token' => $token,
+            ])->first();
+
+         // Se encontrou o usuário, atualiza os dados de verificação
+         if ($user) {
+            $modelUsuario->update($user['id'], [
+               'code' => random_int(100000, 999999), // Gera novo código
+               'token' => $this->uuid->toString(), // Gera novo token
+               'verificado' => 1 // Marca conta como verificada
+            ]);
+
+            // Envia um e-mail para o usuário com o código de verificação
+            $view = view('login/emails/boas_vindas', ['email' => $input['email']]);
+
+            $emailLibraries = new EmailLibrarie();
+            $emailLibraries->sendEmail($input['email'], 'Seja muito bem vindo!', $view);
+
+            return $this->respond(['message' => 'Conta verificada com sucesso']);
+         }
+
+         throw new RuntimeException('Houve um erro ao verificar sua conta.');
+      } catch (Exception $e) {
          return $this->fail($e->getMessage());
       }
    }
