@@ -2,8 +2,8 @@
 
 namespace App\Controllers;
 
-use App\Controllers\BaseController;
-use CodeIgniter\HTTP\ResponseInterface;
+use App\Models\UsuarioModel;
+use CodeIgniter\HTTP\RedirectResponse;
 
 class Login extends BaseController
 {
@@ -19,11 +19,29 @@ class Login extends BaseController
     {
         return view('login/recuperar');
     }
-   public function confirmar($id = null): string
+
+   public function confirmar(string $id = null): string|RedirectResponse
    {
-      return view('login/confirmar');
+      $modelUser = new UsuarioModel();
+      $result = $modelUser->where('token', $id)->first();
+
+      if (!$result) {
+         return redirect()->to(base_url('login?&confirm=false'));
+      }
+
+      $data = [
+         'token' => $id
+      ];
+
+      return view('login/confirmar', $data);
    }
     public function alterar(): string{
        return view('login/alterar');
+    }
+
+    public function logout(): RedirectResponse
+    {
+       session()->destroy();
+       return redirect()->to(base_url('login'));
     }
 }
