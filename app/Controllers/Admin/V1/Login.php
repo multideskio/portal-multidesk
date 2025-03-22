@@ -190,4 +190,55 @@ class Login extends ResourceController
          return $this->fail($e->getMessage());
       }
    }
+
+   /**
+    * Realiza o processo de recuperação de senha do usuário
+    *
+    * Este méthodo recebe um email do usuário que esqueceu a senha,
+    * verifica se o usuário existe no sistema, gera um novo código
+    * e token de verificação, atualiza os dados do usuário no banco
+    * e envia um email com as instruções para redefinir a senha.
+    *
+    * @return ResponseInterface Retorna mensagem de sucesso se email foi enviado
+    * ou mensagem de erro em caso de falha
+    */
+   public function recuperarSenha(): ResponseInterface
+   {
+      try {
+         // Obtém dados do POST
+         $input = $this->request->getPost();
+
+         $modelUsuario = new UsuarioModel();
+
+         // Busca o usuário pelo email
+         $usuario = $modelUsuario->where('email', $input['email'])->first();
+
+         if (!$usuario) {
+            throw new RuntimeException('Usuário não encontrado');
+         }
+
+         // Gera novo código de verificação e token
+         $code = random_int(100000, 999999);
+         $token = $this->uuid->toString();
+
+         // Atualiza os dados do usuário
+         $modelUsuario->update($usuario['id'], [
+            'code' => $code,
+            'token' => $token,
+         ]);
+
+         //Prepara e envia o email
+         $view = view('login/emails/recuperacao', ['token' => $token, 'email' => $input['email'], 'nome' => $usuario['nome']]);;
+         $emailLibraries = new EmailLibrarie();
+         $emailLibraries->sendEmail($input['email'], 'Recuperar senha', $view);
+
+         return $this->respond(['message' => 'Email de recuperação de conta enviado com sucesso', 'token' => $token . '?email=' . $input['email'] . '&type=recover']);
+      } catch (Exception $e) {
+         return $this->fail($e->getMessage());
+      }
+   }
+
+   public function novaSenha(){
+
+   }
 }

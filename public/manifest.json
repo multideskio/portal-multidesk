@@ -1,0 +1,48 @@
+{
+  "id": "/",
+  "version": "1.0.0",
+  "name": "Multidesk Plataforma",
+  "short_name": "Multidesk.io",
+  "description": "Gerenciamento de eventos.",
+  "start_url": "/",
+  "author": "Paulo Henrique",
+  "keywords": ["tickets", "pagamentos", "ofertas"],
+  "orientation": "portrait",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "minimal-ui"],
+  "background_color": "#ffffff",
+  "theme_color": "#ff6600",
+  "icons": [
+    {
+      "src": "android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot-mobile.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "label": "Visualização do aplicativo no formato mobile"
+    },
+    {
+      "src": "screenshot-desktop.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Visualização do aplicativo no formato desktop"
+    }
+  ],
+  "protocol_handlers": [
+    {
+      "protocol": "web+multidesk",
+      "url": "/?event=%s"
+    }
+  ]
+}
