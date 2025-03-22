@@ -35,13 +35,32 @@ class Login extends BaseController
 
       return view('login/confirmar', $data);
    }
-    public function alterar(): string{
-       return view('login/alterar');
-    }
+
+   /**
+    * Valida o token e email para alterar a senha
+    *
+    * @param string|null $id Token de validação
+    * @return string|RedirectResponse Retorna a view de alteração ou redireciona para login
+    */
+   public function alterar(string $id = null): string|RedirectResponse
+   {
+      $modelUser = new UsuarioModel();
+      $result = $modelUser->where('token', $id)->first();
+      $email = $this->request->getGet('email');
+
+      // Valida se o token existe e pertence ao email informado
+      if (!$result || $result['email'] !== $email) {
+         log_message('info', "O email $email tentou alterar a senha sem um token válido");
+         return redirect()->to(base_url('login?&alterar=false'));
+      }
+
+      // Retorna a view com o token e email validados
+      return view('login/alterar', ['token' => $id, 'email' => $email]);
+   }
 
     public function logout(): RedirectResponse
     {
-       session()->destroy();
+       $this->session->destroy();
        return redirect()->to(base_url('login'));
     }
 }

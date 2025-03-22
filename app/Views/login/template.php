@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Entrar - Geex Dashboard</title>
+    <title>Entrar - Multidesk Plataforma</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#5840ff">
+
     <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- inject:css-->
     <link rel="stylesheet" href="/assets/vendor/css/bootstrap/bootstrap.css">
@@ -20,7 +24,7 @@
         if (localStorage.theme) document.documentElement.setAttribute("data-theme", localStorage.theme);
         if (localStorage.layout) document.documentElement.setAttribute("data-nav", localStorage.navbar);
         if (localStorage.layout) document.documentElement.setAttribute("dir", localStorage.layout);
-        const base_url = '<?= base_url() ?>';
+        const base_url = '<?= site_url() ?>';
     </script>
    <?= $this->renderSection('css') ?>
 </head>
@@ -51,6 +55,30 @@
 <script src="/assets/vendor/js/bootstrap/bootstrap.min.js"></script>
 <script src="/assets/js/main.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.all.min.js"></script>
+<script>
+    function getQueryParam(key) {
+        return new URLSearchParams(window.location.search).get(key);
+    }
+
+    function getPartUrl() {
+        const pathArray = window.location.pathname.split('/');
+        return pathArray[pathArray.length - 1] || pathArray[pathArray.length - 2];
+    }
+
+
+</script>
 <?= $this->renderSection('js') ?>
+
+
+<script>
+    if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+            navigator.serviceWorker
+                .register("/service-worker.js")
+                .then(reg => console.log("Service Worker registrado!", reg))
+                .catch(err => console.log("Falha ao registrar o Service Worker:", err));
+        });
+    }
+</script>
 </body>
 </html>
