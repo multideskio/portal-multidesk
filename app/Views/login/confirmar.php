@@ -25,12 +25,6 @@
 
 <?= $this->section('js') ?>
 <script>
-    // Função Utilitária para Consultar Parâmetro na URL
-    function getQueryParam(key) {
-        const urlParams = new URLSearchParams(window.location.search);
-        return urlParams.get(key);
-    }
-
     // Função para Mascarar o Email
     function maskEmail(email) {
         if (!email) return ""; // Retorna vazio se o e-mail não for fornecido
