@@ -1,11 +1,15 @@
 {
   "id": "/",
+  "version": "1.0.0",
   "name": "Multidesk Plataforma",
-  "short_name": "MultideskPlataforma",
+  "short_name": "Multidesk.io",
   "description": "Gerenciamento de eventos.",
   "start_url": "/",
-  "display": "standalone",
-  "display_override": ["window-controls-overlay"],
+  "author": "Paulo Henrique",
+  "keywords": ["tickets", "pagamentos", "ofertas"],
+  "orientation": "portrait",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "minimal-ui"],
   "background_color": "#ffffff",
   "theme_color": "#ff6600",
   "icons": [
