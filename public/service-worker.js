@@ -3,7 +3,7 @@
 const CACHE_NAME = 'multidesk-cache-v1'; // Nome do cache
 const OFFLINE_PAGE = '/offline.html';   // Caminho para a página offline
 const ASSETS_TO_CACHE = [
-    '/',
+    //'/',
     '/app.js',
     '/manifest.json',
     '/favicon.ico',

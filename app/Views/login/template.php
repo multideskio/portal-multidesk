@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Entrar - Multidesk Plataforma</title>
+    <meta name="description" content="Entre na Multidesk Plataforma e aproveite a melhor solução para gerenciar suas demandas de forma eficiente e prática.">
 
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#5840ff">
