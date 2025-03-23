@@ -36,6 +36,6 @@ jobs:
         run: composer install --prefer-dist --no-progress
       
       # Dispara o comando de deploy
-#      - name: Trigger Deployment
-#        run: |
-#          curl -X POST http://5.161.64.220:3000/api/deploy/a80827693254e150a41964588ff650207c91cdc05d8d4840
+      - name: Trigger Deployment
+        run: |
+          curl -X POST http://178.156.141.41:3000/api/deploy/9bf56ab32c46997160e532adea77063d552dcff4e0e505f6
