@@ -23,7 +23,9 @@ class UsuarioModel extends Model
        'token',
        'code',
        'verificado',
-       'foto'
+       'foto',
+       'google_id',
+       'refresh_token'
     ];
 
     protected bool $allowEmptyInserts = false;

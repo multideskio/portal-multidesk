@@ -7,6 +7,7 @@ use App\Libraries\EmailLibrarie;
 use App\Models\EmpresaModel;
 use App\Models\UsuarioModel;
 use CodeIgniter\API\ResponseTrait;
+use CodeIgniter\HTTP\RedirectResponse;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\RESTful\ResourceController;
 use Config\Services;
@@ -14,6 +15,8 @@ use Exception;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use RuntimeException;
+use Google_Client;
+use Google_Service_Oauth2;
 
 
 class Login extends ResourceController
@@ -22,11 +25,24 @@ class Login extends ResourceController
 
    protected AuthLibrarie $authLibrarie;
    private UuidInterface $uuid;
+   private Google_Client $client;
 
    public function __construct()
    {
       $this->authLibrarie = new AuthLibrarie();
       $this->uuid = Uuid::uuid4();
+
+      // Configurar o cliente do Google API
+      $this->client = new Google_Client();
+      $this->client->setClientId(env('GOOGLE_ID'));  // Insira seu Client ID
+      $this->client->setClientSecret(env('GOOGLE_SECRET'));  // Insira seu Client Secret
+      $this->client->setRedirectUri(env('GOOGLE_REDIRECT_URI'));  // URI de redirecionamento
+      $this->client->setAccessType('offline'); // Necessário para obter o refresh token
+      $this->client->setPrompt('consent');    // Força a solicitação de permissões (apenas no primeiro login)
+      $this->client->addScope('email');
+      $this->client->addScope('profile');
+      $this->client->addScope('https://www.googleapis.com/auth/calendar');
+
    }
 
    /**
@@ -238,7 +254,125 @@ class Login extends ResourceController
       }
    }
 
-   public function novaSenha(){
+   /**
+    * @return void
+    * @TODO TERMINAR RECUPERAÇÃO DE SENHA
+    */
+   public function novaSenha()
+   {
 
+   }
+
+   /**
+    * @TODO LOGIN COM O GOOGLE
+    */
+   public function google(): RedirectResponse
+   {
+      $authUrl = $this->client->createAuthUrl();  // Gerar URL de autenticação
+      return redirect()->to($authUrl);  // Redirecionar para a página de login do Google
+   }
+
+   public function callbackGoogle(): ResponseInterface
+   {
+      try {
+         $code = $this->request->getVar('code'); // Código recebido do Google
+
+         if ($code) {
+            // Inicializa a sessão
+            $session = session();
+
+            // Obtém o token de acesso com base no código de autorização recebido
+            $token = $this->client->fetchAccessTokenWithAuthCode($code);
+
+            // Verifica se houve erro ao obter o token
+            if (isset($token['error'])) {
+               throw new RuntimeException($token['error']);
+            }
+
+            // Define o token no cliente
+            $this->client->setAccessToken($token);
+
+            // Obter o refresh token (somente é retornado no primeiro login com 'offline' ativado)
+            $refreshToken = $token['refresh_token'] ?? null;
+
+            // Obter informações do usuário pelo Google API
+            $googleService = new Google_Service_Oauth2($this->client);
+            $googleUser = $googleService->userinfo->get();
+
+            // Exemplo de dados do usuário retornados
+            $data = [
+               'id' => $googleUser->id,
+               'nome' => $googleUser->name,
+               'email' => $googleUser->email,
+               'foto' => $googleUser->picture,
+               'refreshToken' => $refreshToken,
+            ];
+
+            // Verifica se o usuário já existe no banco pelo e-mail
+            $user = $this->getUserByEmail($googleUser->email);
+
+            if ($user) {
+               // Atualiza o refresh token do usuário, se necessário
+               if ($refreshToken) {
+                  $this->updateUserRefreshToken($user['id'], $refreshToken);
+               }
+            } else {
+               // Caso o usuário não exista, crie-o no banco
+               $this->createUser([
+                  'nome' => $googleUser->name,
+                  'email' => $googleUser->email,
+                  'foto' => $googleUser->picture,
+                  'google_id' => $googleUser->id,
+                  'refresh_token' => $refreshToken,
+               ]);
+            }
+
+            // Salva o token de acesso na sessão (somente para uso temporário durante a sessão do navegador)
+            $session->set('access_token', $this->client->getAccessToken());
+
+            return $this->respond($data);
+         }
+
+         throw new RuntimeException('O código de autorização não foi encontrado.');
+      } catch (Exception $e) {
+         return $this->fail($e->getMessage());
+      }
+   }
+
+   private function getUserByEmail(string $email): ?array
+   {
+      $modelUsuario = new UsuarioModel();
+      return $modelUsuario->where('email', $email)->first();
+   }
+
+   private function createUser(array $data): void
+   {
+      try {
+         $modelEmpresa = new EmpresaModel();
+         $modelUsuario = new UsuarioModel();
+
+         // Insere uma nova empresa e obtém o ID gerado
+         $idEmpresa = $modelEmpresa->insert(['nome' => 'Empresa']);
+         $token = $this->uuid->toString();
+         $code = random_int(100000, 999999);
+
+         $data['empresa_id'] = $idEmpresa;
+         $data['token'] = $token;
+         $data['code'] = $code;
+
+         $modelUsuario->insert($data);
+      } catch (Exception $e) {
+         throw new RuntimeException($e->getMessage());
+      }
+   }
+
+   private function updateUserRefreshToken(int $id, string $refreshToken): void
+   {
+      $modelUsuario = new UsuarioModel();
+      try {
+         $modelUsuario->update($id, ['refresh_token' => $refreshToken]);
+      } catch (\ReflectionException $e) {
+         throw new RuntimeException($e->getMessage());
+      }
    }
 }

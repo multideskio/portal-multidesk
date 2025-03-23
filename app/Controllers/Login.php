@@ -57,7 +57,6 @@ class Login extends BaseController
       // Retorna a view com o token e email validados
       return view('login/alterar', ['token' => $id, 'email' => $email]);
    }
-
     public function logout(): RedirectResponse
     {
        $this->session->destroy();
