@@ -61,7 +61,7 @@
 
     <!-- SOCIAL SECTION START -->
     <div class="geex-content__authentication__form-social">
-        <a href="#" class="geex-content__authentication__form-social__single">
+        <a href="/google" class="geex-content__authentication__form-social__single">
             <img src="/assets/img/icon/google.svg" alt="Google Logo"/>Google
         </a>
     </div>

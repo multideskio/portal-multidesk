@@ -72,6 +72,15 @@ class CriarUsuario extends Migration
             'null' => true,
             'comment' => 'Modulos que deveram ser bloqueados no acesso do usuario, se não houve modulos bloqueados, todo o sistema é liberado.'
          ],
+         'google_id' => [
+            'type' => 'VARCHAR',
+            'constraint' => 255,
+            'null' => true,
+         ],
+         'refresh_token' => [
+            'type' => 'TEXT',
+            'null' => true,
+         ],
          'created_at' => [
             'type' => 'DATETIME',
             'null' => true,
