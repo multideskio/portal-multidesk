@@ -279,7 +279,7 @@ class Login extends ResourceController
 
          if ($code) {
             // Inicializa a sessão
-            $session = session();
+            //$session = session();
 
             // Obtém o token de acesso com base no código de autorização recebido
             $token = $this->client->fetchAccessTokenWithAuthCode($code);
@@ -328,9 +328,12 @@ class Login extends ResourceController
             }
 
             // Salva o token de acesso na sessão (somente para uso temporário durante a sessão do navegador)
-            $session->set('access_token', $this->client->getAccessToken());
+            //$session->set('access_token', $this->client->getAccessToken());
 
-            return $this->respond($data);
+            $this->authLibrarie->loginGoogle($googleUser->email);
+
+            //return $this->respond($data);
+            return redirect()->to(base_url('admin'));
          }
 
          throw new RuntimeException('O código de autorização não foi encontrado.');

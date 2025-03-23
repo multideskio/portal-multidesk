@@ -86,4 +86,29 @@ class AuthLibrarie
       // Armazena os dados na sessão
       $this->session->set(['data' => $data]);
    }
+
+
+   public function loginGoogle($email): void
+   {
+      // Busca o usuário no banco de dados pelo e-mail fornecido
+      $usuario = $this->usuarioModel->where('email', $email)->findAll();
+
+      // Dados a serem armazenados na sessão
+      try {
+         $data = [
+            'isLoggedIn' => true,
+            'id' => $usuario[0]['id'],
+            'empresa' => $usuario[0]['empresa_id'],
+            'nome' => $usuario[0]['nome'],
+            'email' => $usuario[0]['email'],
+            'foto' => $usuario[0]['foto'],
+            'roles' => json_decode($usuario[0]['roles'] ?? '{}', false, 512, JSON_THROW_ON_ERROR) ?? [] // Garante que 'roles' seja um array, mesmo se não definido
+         ];
+      } catch (JsonException $e) {
+         throw new RuntimeException('Erro ao decodificar o JSON');
+      }
+
+      // Armazena os dados na sessão
+      $this->session->set(['data' => $data]);
+   }
 }
