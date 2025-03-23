@@ -6,12 +6,19 @@
   "description": "Gerenciamento de eventos.",
   "start_url": "/",
   "author": "Paulo Henrique",
-  "keywords": ["tickets", "pagamentos", "ofertas"],
+  "keywords": [
+    "tickets",
+    "pagamentos",
+    "ofertas",
+    "eventos",
+    "ingressos",
+    "descontos",
+    "promoções"],
   "orientation": "portrait",
-  "display": "fullscreen",
-  "display_override": ["fullscreen", "minimal-ui"],
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "background_color": "#ffffff",
-  "theme_color": "#ff6600",
+  "theme_color": "#6853ff",
   "icons": [
     {
       "src": "android-chrome-192x192.png",
