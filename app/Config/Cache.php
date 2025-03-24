@@ -117,12 +117,13 @@ class Cache extends BaseConfig
 
    public function __construct()
    {
+      parent::__construct();
       $this->redis = [
-         'host' => env('REDIS_HOST'),
-         'password' => env('REDIS_PASSWORD'),
-         'port' => (int)env('REDIS_PORT'),
-         'timeout' => (int)env('REDIS_TIMEOUT'),
-         'database' => (int)env('REDIS_DATABASE'),
+         'host' => env('REDIS_HOST', 'localhost'),
+         'password' => env('REDIS_PASSWORD', null) ?: null,
+         'port' => (int)env('REDIS_PORT', 6379),
+         'timeout' => (float)env('REDIS_TIMEOUT', 0),
+         'database' => (int)env('REDIS_DATABASE', 0),
       ];
    }
 
