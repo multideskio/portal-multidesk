@@ -111,7 +111,7 @@
             console.log(pair[0] + ': ' + pair[1]);
         }*/
         try{
-            const response = await fetch(base_url+'login/alterar', {
+            const response = await fetch(base_url+'novasenha', {
                 method: 'POST',
                 body: formData
             });
