@@ -10,6 +10,7 @@ use CodeIgniter\API\ResponseTrait;
 use CodeIgniter\HTTP\RedirectResponse;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\RESTful\ResourceController;
+use Config\Database;
 use Config\Services;
 use Exception;
 use Ramsey\Uuid\Uuid;
@@ -19,14 +20,39 @@ use Google_Client;
 use Google_Service_Oauth2;
 
 
+/**
+ * Classe responsável por gerenciar as operações de login, registro, verificação de conta e recuperação de senha.
+ *
+ * Estende o ResourceController e utiliza a ResponseTrait para lidar com respostas HTTP. A classe
+ * também integra bibliotecas para autenticação, integração com API do Google, manipulação UUID e cache.
+ */
 class Login extends ResourceController
 {
    use ResponseTrait;
 
+   /**
+    * Biblioteca de autenticação utilizada no sistema.
+    */
    protected AuthLibrarie $authLibrarie;
+   /**
+    *
+    */
    private UuidInterface $uuid;
+   /**
+    *
+    */
    private Google_Client $client;
 
+   /**
+    *
+    */
+   private ?object $cache ;
+
+   /**
+    * Construtor da classe responsável pela inicialização de bibliotecas de autenticação e configuração do cliente da API Google.
+    *
+    * @return void
+    */
    public function __construct()
    {
       $this->authLibrarie = new AuthLibrarie();
@@ -42,6 +68,8 @@ class Login extends ResourceController
       $this->client->addScope('email');
       $this->client->addScope('profile');
       $this->client->addScope('https://www.googleapis.com/auth/calendar');
+
+      $this->cache = Services::cache();
 
    }
 
@@ -99,7 +127,7 @@ class Login extends ResourceController
     */
    public function registrar(): ResponseInterface
    {
-      $db = \Config\Database::connect();
+      $db = Database::connect();
 
       try {
          // Obtém os dados enviados na requisição POST
@@ -221,7 +249,6 @@ class Login extends ResourceController
    public function recuperarSenha(): ResponseInterface
    {
       try {
-         // Obtém dados do POST
          $input = $this->request->getPost();
 
          $modelUsuario = new UsuarioModel();
@@ -255,33 +282,90 @@ class Login extends ResourceController
    }
 
    /**
-    * @return void
+    * @return ResponseInterface
     * @TODO TERMINAR RECUPERAÇÃO DE SENHA
     */
-   public function novaSenha()
+   public function novaSenha(): ResponseInterface
    {
-
+      return $this->respond(['message' => 'Nova senha']);
    }
 
    /**
-    * @TODO LOGIN COM O GOOGLE
+    * Lida com a autenticação e autorização do Google OAuth 2.0.
+    *
+    * Este méthodo verifica o cache para um usuário autenticado utilizando um "Refresh Token",
+    * tenta renovar o "Access Token" e autentica o usuário automaticamente. Caso não encontre
+    * tokens válidos, redireciona o usuário para a página de login do Google.
+    *
+    * @return RedirectResponse Um redirecionamento para a área autenticada da aplicação ou para a página de login do Google.
     */
    public function google(): RedirectResponse
    {
-      $authUrl = $this->client->createAuthUrl();  // Gerar URL de autenticação
-      return redirect()->to($authUrl);  // Redirecionar para a página de login do Google
+      $cacheKey = $this->getCacheKey(); // Gera a chave única para o contexto atual
+      $userId = $this->cache->get($cacheKey);
+
+      if ($userId) {
+         $modelUsuario = new UsuarioModel();
+         $user = $modelUsuario->find($userId);
+
+         if ($user && !empty($user['refresh_token'])) {
+            try {
+               log_message('info', 'Usuário encontrado no cache. Tentando renovar Access Token.');
+
+               // Renova o Access Token através do Refresh Token
+               $this->client->fetchAccessTokenWithRefreshToken($user['refresh_token']);
+               $accessToken = $this->client->getAccessToken();
+
+               if (isset($accessToken['access_token'])) {
+                  $this->cache->save('access_token_' . $cacheKey, $accessToken['access_token'], 3600);
+
+                  $this->authLibrarie->loginGoogle($user['email']);
+                  return redirect()->to(base_url('admin'));
+               }
+            } catch (\Exception $e) {
+               log_message('error', 'Erro ao renovar Access Token: ' . $e->getMessage());
+            }
+         }
+      }
+
+      log_message('info', 'Usuário não autenticado ou Refresh Token ausente. Redirecionando ao Google.');
+      $authUrl = $this->client->createAuthUrl();
+      return redirect()->to($authUrl);
    }
 
+   /**
+    * Recupera o usuário autenticado a partir do cache.
+    * Caso o usuário não seja encontrado, registra um erro no log.
+    *
+    * @return array|null Retorna os dados do usuário autenticado ou null se não encontrado.
+    */
+   private function getAuthenticatedUser(): ?array
+   {
+      $cacheKey = $this->getCacheKey();
+      $userId = $this->cache->get($cacheKey);
+
+      if ($userId) {
+         return (new UsuarioModel())->find($userId);
+      }
+
+      log_message('error', 'Usuário autenticado não encontrado no cache.');
+      return null;
+   }
+
+   /**
+    * Gerencia o callback do Google após autenticação, validando o código recebido, obtendo o token de acesso
+    * e criando ou atualizando informações do usuário. Realiza login no sistema após sucesso no processo.
+    *
+    * @return ResponseInterface
+    */
    public function callbackGoogle(): ResponseInterface
    {
       try {
          $code = $this->request->getVar('code'); // Código recebido do Google
 
-         if ($code) {
-            // Inicializa a sessão
-            //$session = session();
+         log_message('info', 'Callback recebido do Google. Iniciando validação do código.');
 
-            // Obtém o token de acesso com base no código de autorização recebido
+         if ($code) {
             $token = $this->client->fetchAccessTokenWithAuthCode($code);
 
             // Verifica se houve erro ao obter o token
@@ -292,32 +376,23 @@ class Login extends ResourceController
             // Define o token no cliente
             $this->client->setAccessToken($token);
 
-            // Obter o refresh token (somente é retornado no primeiro login com 'offline' ativado)
+            // Obter o Refresh Token
             $refreshToken = $token['refresh_token'] ?? null;
 
             // Obter informações do usuário pelo Google API
             $googleService = new Google_Service_Oauth2($this->client);
             $googleUser = $googleService->userinfo->get();
 
-            // Exemplo de dados do usuário retornados
-            $data = [
-               'id' => $googleUser->id,
-               'nome' => $googleUser->name,
-               'email' => $googleUser->email,
-               'foto' => $googleUser->picture,
-               'refreshToken' => $refreshToken,
-            ];
-
-            // Verifica se o usuário já existe no banco pelo e-mail
+            // Verifica se o usuário já existe no banco
             $user = $this->getUserByEmail($googleUser->email);
 
             if ($user) {
-               // Atualiza o refresh token do usuário, se necessário
+               log_message('info', "Usuário encontrado no banco: {$user['email']}");
                if ($refreshToken) {
                   $this->updateUserRefreshToken($user['id'], $refreshToken);
                }
             } else {
-               // Caso o usuário não exista, crie-o no banco
+               log_message('info', 'Criando um novo usuário. Salvando informações...');
                $this->createUser([
                   'nome' => $googleUser->name,
                   'email' => $googleUser->email,
@@ -325,29 +400,46 @@ class Login extends ResourceController
                   'google_id' => $googleUser->id,
                   'refresh_token' => $refreshToken,
                ]);
+
+               $user = $this->getUserByEmail($googleUser->email);
             }
 
-            // Salva o token de acesso na sessão (somente para uso temporário durante a sessão do navegador)
-            //$session->set('access_token', $this->client->getAccessToken());
+            // Salvar o ID do usuário no cache com uma chave única
+            $cacheKey = $this->getCacheKey();
+            $this->cache->save($cacheKey, $user['id'], 86400 * 365); // Cache válido por 24 horas
 
+            // Realiza o login no sistema
             $this->authLibrarie->loginGoogle($googleUser->email);
 
-            //return $this->respond($data);
+            log_message('info', "Login pelo Google bem-sucedido para o usuário: {$googleUser->email}");
+
             return redirect()->to(base_url('admin'));
          }
 
          throw new RuntimeException('O código de autorização não foi encontrado.');
       } catch (Exception $e) {
+         log_message('error', 'Erro no callback do Google: ' . $e->getMessage());
          return $this->fail($e->getMessage());
       }
    }
 
+   /**
+    * @param string $email O e-mail do usuário a ser buscado.
+    * @return array|null Retorna os dados do usuário como um array se encontrado, ou null se não encontrado.
+    */
    private function getUserByEmail(string $email): ?array
    {
       $modelUsuario = new UsuarioModel();
       return $modelUsuario->where('email', $email)->first();
    }
 
+   /**
+    * Cria um novo usuário e uma nova empresa associada.
+    *
+    * @param array $data Dados do usuário para inserção, contendo informações necessárias.
+    * @return void
+    * @throws RuntimeException Caso ocorra um erro durante o processo de inserção.
+    */
    private function createUser(array $data): void
    {
       try {
@@ -369,6 +461,13 @@ class Login extends ResourceController
       }
    }
 
+   /**
+    * Atualiza o token de atualização do usuário fornecido pelo ID.
+    *
+    * @param int $id ID do usuário a ser atualizado.
+    * @param string $refreshToken Novo token de atualização a ser associado ao usuário.
+    * @return void
+    */
    private function updateUserRefreshToken(int $id, string $refreshToken): void
    {
       $modelUsuario = new UsuarioModel();
@@ -378,4 +477,37 @@ class Login extends ResourceController
          throw new RuntimeException($e->getMessage());
       }
    }
+
+   /**
+    * Gera uma chave de cache única para identificar o usuário.
+    *
+    * @return string Uma string única gerada com base no identificador do navegador e no endereço IP do cliente.
+    */
+   private function getCacheKey(): string
+   {
+      // Pode ser um identificador único baseado em cookies, tokens de autenticação ou outro valor único
+      $browserIdentifier = $this->request->getUserAgent(); // Identificador do navegador (opcional)
+      $ipAddress = $this->request->getIPAddress(); // IP do cliente
+
+      // Concatenar para criar uma chave única
+      return 'user_id_' . md5($browserIdentifier . $ipAddress);
+   }
+
+   /**
+    * Realiza o logout do usuário, removendo o cache associado e redirecionando para a página inicial.
+    *
+    * @return RedirectResponse Retorna uma resposta de redirecionamento para a página inicial.
+    */
+   public function logout(): RedirectResponse
+   {
+      // Remove o cache associado ao contexto
+      $cacheKey = $this->getCacheKey();
+      $this->cache->delete($cacheKey);
+      $this->cache->delete('access_token_' . $cacheKey);
+
+      log_message('info', 'Cache do usuário removido com sucesso no logout.');
+
+      return redirect()->to(base_url());
+   }
+
 }
