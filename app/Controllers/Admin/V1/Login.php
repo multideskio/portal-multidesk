@@ -281,13 +281,43 @@ class Login extends ResourceController
       }
    }
 
+
    /**
-    * @return ResponseInterface
-    * @TODO TERMINAR RECUPERAÇÃO DE SENHA
+    * Atualiza a senha de um usuário no sistema com base no token ou e-mail fornecido.
+    *
+    * Este méthodo verifica se o token informado é válido ou, caso contrário, busca o
+    * usuário com base no e-mail fornecido. Se as informações forem válidas, ele gera
+    * um novo token, um código de verificação e atualiza a senha utilizando um hash seguro.
+    *
+    * @return ResponseInterface Retorna uma resposta indicando o sucesso ou falha da operação.
     */
    public function novaSenha(): ResponseInterface
    {
-      return $this->respond(['message' => 'Nova senha']);
+      try {
+         $input = $this->request->getPost();
+         $modelUsuario = new UsuarioModel();
+         // Verifica se o token corresponde a algum usuário
+         $usuario = $modelUsuario->where('token', $input['token'])->first();
+         if (!$usuario) {
+            // Caso o token não seja encontrado, busca o usuário pelo email
+            $usuario = $modelUsuario->where('email', $input['email'])->first();
+            if (!$usuario) {
+              throw new RuntimeException('Token ou e-mail inválidos. Por favor, solicite uma nova recuperação de conta e tente novamente.'); // Retorna erro se o usuário não for encontrado
+            }
+         }
+         // Gera um novo token e código de verificação
+         $token = $this->uuid->toString();
+         $code = random_int(100000, 999999);
+         $data = [
+            'code' => $code, // Atualiza o código de verificação
+            'token' => $token, // Atualiza o token
+            'senha' => PASSWORD_HASH($input['password'], PASSWORD_DEFAULT), // Atualiza a senha com hash
+         ];
+         $modelUsuario->update($usuario['id'], $data); // Atualiza os dados do usuário no banco
+         return $this->respond(['message' => 'Nova senha enviada com sucesso']); // Retorna mensagem de sucesso
+      } catch (Exception $e) {
+         return $this->fail($e->getMessage()); // Retorna mensagem de erro em caso de exceção
+      }
    }
 
    /**
