@@ -70,6 +70,10 @@
     <div class="geex-content__authentication__form-footer">
         Não tem uma conta? <a href="/registrar">Cadastre-se</a>
     </div>
+
+    <div class="geex-content__authentication__form-footer">
+        <a href="https://multidesk.io/politica-de-privacidade-login/" target="_blank">Política de privacidade</a> e<a href="https://multidesk.io/termos-de-servico/" target="_blank">termos de uso</a>
+    </div>
 </form>
 <!-- LOGIN FORM END -->
     <!-- LOGIN FORM END -->
