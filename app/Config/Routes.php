@@ -31,7 +31,7 @@ $routes->post("login", 'Admin\V1\Login::login');
 $routes->post("registrar", 'Admin\V1\Login::registrar');
 $routes->post("recuperar", 'Admin\V1\Login::recuperarSenha');
 
-$routes->get("novasenha", 'Admin\V1\Login::alterarSenha');
+$routes->post("novasenha", 'Admin\V1\Login::novaSenha');
 
 $routes->post("confirmar/(:any)", 'Admin\V1\Login::confirmar/$1');
 
