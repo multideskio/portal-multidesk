@@ -108,7 +108,7 @@
                 confirmButton: true,
                 timer: null,
             }).then(() => {
-                //window.location.href = `/login?confirm=true&email=${email}`;
+                window.location.href = `/login?confirm=true&email=${email}`;
             });
         } catch (error) {
             showAlert({
