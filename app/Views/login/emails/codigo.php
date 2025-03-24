@@ -24,7 +24,7 @@ if($codigo === 'Houve um erro ao processar o seu pedido.'){
 
     <!-- Logo -->
     <div style="text-align: center; margin-bottom: 20px;">
-        <img src="<?= base_url('/assets/img/logo-dark.svg')?>" alt="Logo da Empresa" style="max-width: 150px;">
+        <img src="<?= base_url('/assets/img/logo-dark.png')?>" alt="Logo da Empresa" style="max-width: 150px;">
     </div>
 
     <!-- Mensagem principal -->
