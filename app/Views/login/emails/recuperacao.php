@@ -36,7 +36,7 @@ if($token === 'Houve um erro ao processar o seu pedido.'){
 
    <!-- Bloco do código -->
     <a href="<?= base_url('novasenha/'.$token.'/?email='.$email) ?>" style="display: inline-block; background-color: #5840ff; color: #ffffff; text-decoration: none; font-size: 16px; font-weight: bold; padding: 12px 20px; border-radius: 5px; margin-top: 20px;">
-        CLIQUE AQUI PARA ALTERAR SUA SENHA
+        👉 CLIQUE AQUI PARA ALTERAR SUA SENHA
     </a>
 
    <!-- Mensagem secundária -->
