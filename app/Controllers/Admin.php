@@ -7,9 +7,20 @@ use CodeIgniter\HTTP\ResponseInterface;
 
 class Admin extends BaseController
 {
-    public function index()
+    public function index(): ResponseInterface
     {
        $data = $this->session->get('data');
-       print_r($data);
+       
+       $cache = service('cache');
+
+       if (!empty($cache)) {
+          $cache->save('data', $data, 300);
+       }
+
+       return $this->response->setJSON([
+          'status' => 'success',
+          'message' => 'Data has been cached successfully.',
+          'data' => $cache->get('data')
+       ]);
     }
 }
