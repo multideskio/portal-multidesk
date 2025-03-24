@@ -90,7 +90,7 @@
         }
     }
 
-    signInForm.addEventListener("submit", (event) => {
+    signInForm.addEventListener("submit", async (event) => {
         event.preventDefault();
 
         const email = document.getElementById("emailSignIn").value.trim();
@@ -107,8 +107,36 @@
         formData.append("password", password);
         formData.append("token", token);
 
-        for (const pair of formData.entries()) {
+        /*for (const pair of formData.entries()) {
             console.log(pair[0] + ': ' + pair[1]);
+        }*/
+        try{
+            const response = await fetch(base_url+'login/alterar', {
+                method: 'POST',
+                body: formData
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.messages.error || 'Erro ao alterar senha.');
+            }
+            const responseData = await response.json();
+
+            Swal.fire({
+                title: 'Sucesso!',
+                text: 'Alterei sua senha com sucesso!',
+                icon: 'success',
+                confirmButtonText: 'Ok'
+            }).then((result) => {
+                window.location.href = `/confirmar/${responseData.token}`;
+            });
+        }catch (error){
+            Swal.fire({
+                title: 'Erro!',
+                text: error.message,
+                icon: 'error',
+                confirmButtonText: 'Ok'
+            })
+            console.error('Erro:', error);
         }
     })
 </script>
