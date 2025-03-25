@@ -6,10 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Entrar - Multidesk Plataforma</title>
     <meta name="description" content="Entre na Multidesk Plataforma e aproveite a melhor solução para gerenciar suas demandas de forma eficiente e prática.">
-
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#5840ff">
-
     <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- inject:css-->
     <link rel="stylesheet" href="/assets/vendor/css/bootstrap/bootstrap.css">
@@ -60,17 +58,12 @@
     function getQueryParam(key) {
         return new URLSearchParams(window.location.search).get(key);
     }
-
     function getPartUrl() {
         const pathArray = window.location.pathname.split('/');
         return pathArray[pathArray.length - 1] || pathArray[pathArray.length - 2];
     }
-
-
 </script>
 <?= $this->renderSection('js') ?>
-
-
 <script src="/app.js"></script>
 </body>
 </html>
