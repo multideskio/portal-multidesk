@@ -32,21 +32,21 @@ File: Main Js File
 	function setLanguage(lang) {
 		if (document.getElementById("header-lang-img")) {
 			if (lang == "en") {
-				document.getElementById("header-lang-img").src = "assets/images/flags/us.svg";
+				document.getElementById("header-lang-img").src = "/assets/images/flags/us.svg";
 			} else if (lang == "sp") {
-				document.getElementById("header-lang-img").src = "assets/images/flags/spain.svg";
+				document.getElementById("header-lang-img").src = "/assets/images/flags/spain.svg";
 			} else if (lang == "gr") {
-				document.getElementById("header-lang-img").src = "assets/images/flags/germany.svg";
+				document.getElementById("header-lang-img").src = "/assets/images/flags/germany.svg";
 			} else if (lang == "it") {
-				document.getElementById("header-lang-img").src = "assets/images/flags/italy.svg";
+				document.getElementById("header-lang-img").src = "/assets/images/flags/italy.svg";
 			} else if (lang == "ru") {
-				document.getElementById("header-lang-img").src = "assets/images/flags/russia.svg";
+				document.getElementById("header-lang-img").src = "/assets/images/flags/russia.svg";
 			} else if (lang == "ch") {
-				document.getElementById("header-lang-img").src = "assets/images/flags/china.svg";
+				document.getElementById("header-lang-img").src = "/assets/images/flags/china.svg";
 			} else if (lang == "fr") {
-				document.getElementById("header-lang-img").src = "assets/images/flags/french.svg";
+				document.getElementById("header-lang-img").src = "/assets/images/flags/french.svg";
 			} else if (lang == "ar") {
-				document.getElementById("header-lang-img").src = "assets/images/flags/ae.svg";
+				document.getElementById("header-lang-img").src = "images/flags/ae.svg";
 			}
 			localStorage.setItem("language", lang);
 			language = localStorage.getItem("language");
@@ -59,7 +59,7 @@ File: Main Js File
 		language == null ? setLanguage(default_lang) : false;
 		var request = new XMLHttpRequest();
 		// Instantiating the request object
-		request.open("GET", "assets/lang/" + language + ".json");
+		request.open("GET", "/assets/lang/" + language + ".json");
 		// Defining event listener for readystatechange event
 		request.onreadystatechange = function () {
 			// Check if the request is compete and was successful
@@ -372,7 +372,7 @@ File: Main Js File
 				document.querySelector(".navbar-menu").innerHTML = navbarMenuHTML;
 			}
 			var ul = document.createElement("ul");
-			ul.innerHTML = '<a href="#" class="logo"><img src="assets/images/logo-sm.png" alt="" height="22"></a>';
+			ul.innerHTML = '<a href="#" class="logo"><img src="/assets/images/logo-sm.png" alt="" height="22"></a>';
 			Array.from(document.getElementById("navbar-nav").querySelectorAll(".menu-link")).forEach(function (item) {
 				ul.className = "twocolumn-iconview";
 				var li = document.createElement("li");
@@ -469,44 +469,45 @@ File: Main Js File
 
 	//  Search menu dropdown on Topbar
 	function isCustomDropdown() {
-		//Search bar
+		// Search bar
 		var searchOptions = document.getElementById("search-close-options");
 		var dropdown = document.getElementById("search-dropdown");
 		var searchInput = document.getElementById("search-options");
-		if (searchInput) {
+
+		if (searchInput) { // Só adiciona event listeners no searchInput se ele existir
 			searchInput.addEventListener("focus", function () {
 				var inputLength = searchInput.value.length;
 				if (inputLength > 0) {
-					dropdown.classList.add("show");
-					searchOptions.classList.remove("d-none");
+					if (dropdown) dropdown.classList.add("show");
+					if (searchOptions) searchOptions.classList.remove("d-none");
 				} else {
-					dropdown.classList.remove("show");
-					searchOptions.classList.add("d-none");
+					if (dropdown) dropdown.classList.remove("show");
+					if (searchOptions) searchOptions.classList.add("d-none");
 				}
 			});
 
 			searchInput.addEventListener("keyup", function (event) {
 				var inputLength = searchInput.value.length;
 				if (inputLength > 0) {
-					dropdown.classList.add("show");
-					searchOptions.classList.remove("d-none");
+					if (dropdown) dropdown.classList.add("show");
+					if (searchOptions) searchOptions.classList.remove("d-none");
 
 					var inputVal = searchInput.value.toLowerCase();
 
 					var notifyItem = document.getElementsByClassName("notify-item");
 
 					Array.from(notifyItem).forEach(function (element) {
-						var notifiTxt = ''
+						var notifiTxt = '';
 						if (element.querySelector("h6")) {
-							var spantext = element.getElementsByTagName("span")[0].innerText.toLowerCase()
-							var name = element.querySelector("h6").innerText.toLowerCase()
+							var spantext = element.getElementsByTagName("span")[0]?.innerText.toLowerCase(); // Verificações adicionais
+							var name = element.querySelector("h6").innerText.toLowerCase();
 							if (name.includes(inputVal)) {
-								notifiTxt = name
+								notifiTxt = name;
 							} else {
-								notifiTxt = spantext
+								notifiTxt = spantext;
 							}
 						} else if (element.getElementsByTagName("span")) {
-							notifiTxt = element.getElementsByTagName("span")[0].innerText.toLowerCase()
+							notifiTxt = element.getElementsByTagName("span")[0]?.innerText.toLowerCase(); // Verificações adicionais
 						}
 
 						if (notifiTxt)
@@ -514,21 +515,23 @@ File: Main Js File
 
 					});
 				} else {
-					dropdown.classList.remove("show");
-					searchOptions.classList.add("d-none");
+					if (dropdown) dropdown.classList.remove("show");
+					if (searchOptions) searchOptions.classList.add("d-none");
 				}
 			});
 
-			searchOptions.addEventListener("click", function () {
-				searchInput.value = "";
-				dropdown.classList.remove("show");
-				searchOptions.classList.add("d-none");
-			});
+			if (searchOptions) { // Adiciona event listener ao searchOptions apenas se ele existir
+				searchOptions.addEventListener("click", function () {
+					searchInput.value = "";
+					if (dropdown) dropdown.classList.remove("show");
+					searchOptions.classList.add("d-none");
+				});
+			}
 
 			document.body.addEventListener("click", function (e) {
 				if (e.target.getAttribute("id") !== "search-options") {
-					dropdown.classList.remove("show");
-					searchOptions.classList.add("d-none");
+					if (dropdown) dropdown.classList.remove("show");
+					if (searchOptions) searchOptions.classList.add("d-none");
 				}
 			});
 		}
@@ -916,10 +919,12 @@ File: Main Js File
 
 	// two-column sidebar active js
 	function initActiveMenu() {
-		var currentPath = location.pathname == "/" ? "index.html" : location.pathname.substring(1);
-		currentPath = currentPath.substring(currentPath.lastIndexOf("/") + 1);
+		// Ajuste: Mantemos a barra no caminho
+		var currentPath = location.pathname === "/" ? "/index.html" : location.pathname;
+		currentPath = currentPath.substring(currentPath.lastIndexOf("/") + 1) === "" ? "/" : location.pathname;
+
 		if (currentPath) {
-			// navbar-nav
+			// Procurar o link no menu com o href correspondente ao caminho atual
 			var a = document.getElementById("navbar-nav").querySelector('[href="' + currentPath + '"]');
 			if (a) {
 				a.classList.add("active");
@@ -930,16 +935,16 @@ File: Main Js File
 					parentCollapseDiv.parentElement.children[0].setAttribute("aria-expanded", "true");
 					if (parentCollapseDiv.parentElement.closest(".collapse.menu-dropdown")) {
 						parentCollapseDiv.parentElement.closest(".collapse").classList.add("show");
-						if (parentCollapseDiv.parentElement.closest(".collapse").previousElementSibling)
+						if (parentCollapseDiv.parentElement.closest(".collapse").previousElementSibling) {
 							parentCollapseDiv.parentElement.closest(".collapse").previousElementSibling.classList.add("active");
+						}
 
 						if (parentCollapseDiv.parentElement.parentElement.parentElement.parentElement.closest(".collapse.menu-dropdown")) {
 							parentCollapseDiv.parentElement.parentElement.parentElement.parentElement.closest(".collapse").classList.add("show");
 							if (parentCollapseDiv.parentElement.parentElement.parentElement.parentElement.closest(".collapse").previousElementSibling) {
-
 								parentCollapseDiv.parentElement.parentElement.parentElement.parentElement.closest(".collapse").previousElementSibling.classList.add("active");
 								if ((document.documentElement.getAttribute("data-layout") == "horizontal") && parentCollapseDiv.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.closest(".collapse")) {
-									parentCollapseDiv.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.closest(".collapse").previousElementSibling.classList.add("active")
+									parentCollapseDiv.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.closest(".collapse").previousElementSibling.classList.add("active");
 								}
 							}
 						}
@@ -1030,7 +1035,7 @@ File: Main Js File
 						if (!emptyNotificationElem) {
 							elem.innerHTML += '<div class="empty-notification-elem">\
 							<div class="w-25 w-sm-50 pt-3 mx-auto">\
-								<img src="assets/images/svg/bell.svg" class="img-fluid" alt="user-pic">\
+								<img src="/assets/images/svg/bell.svg" class="img-fluid" alt="user-pic">\
 							</div>\
 							<div class="text-center pb-5 mt-2">\
 								<h6 class="fs-18 fw-semibold lh-base">Hey! You have no any notifications </h6>\
