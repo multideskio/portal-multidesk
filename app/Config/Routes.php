@@ -47,3 +47,7 @@ $routes->group("admin", ['filter' => 'admin-auth'], static function ($routes) {
       $routes->get("participantes", 'Admin\Cursos::participantes');
    });
 });
+
+$routes->group("api/v1", ['filter' => 'admin-auth'], static function ($routes) {
+   $routes->get("me", 'Admin\V1\Login::me');
+});

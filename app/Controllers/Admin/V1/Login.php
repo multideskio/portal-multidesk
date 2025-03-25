@@ -15,6 +15,7 @@ use Config\Services;
 use Exception;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
+use ReflectionException;
 use RuntimeException;
 use Google_Client;
 use Google_Service_Oauth2;
@@ -46,7 +47,8 @@ class Login extends ResourceController
    /**
     *
     */
-   private ?object $cache ;
+   private ?object $cache;
+   protected ?object $session;
 
    /**
     * Construtor da classe responsável pela inicialização de bibliotecas de autenticação e configuração do cliente da API Google.
@@ -70,7 +72,14 @@ class Login extends ResourceController
       $this->client->addScope('https://www.googleapis.com/auth/calendar');
 
       $this->cache = Services::cache();
+      $this->session = session();
 
+   }
+
+   public function me(): ResponseInterface
+   {
+      $session = $this->session->get('data');
+      return $this->respond($session);
    }
 
    /**
@@ -302,7 +311,7 @@ class Login extends ResourceController
             // Caso o token não seja encontrado, busca o usuário pelo email
             $usuario = $modelUsuario->where('email', $input['email'])->first();
             if (!$usuario) {
-              throw new RuntimeException('Token ou e-mail inválidos. Por favor, solicite uma nova recuperação de conta e tente novamente.'); // Retorna erro se o usuário não for encontrado
+               throw new RuntimeException('Token ou e-mail inválidos. Por favor, solicite uma nova recuperação de conta e tente novamente.'); // Retorna erro se o usuário não for encontrado
             }
          }
          // Gera um novo token e código de verificação
@@ -347,9 +356,10 @@ class Login extends ResourceController
                $accessToken = $this->client->getAccessToken();
 
                if (isset($accessToken['access_token'])) {
-                  $this->cache->save('access_token_' . $cacheKey, $accessToken['access_token'], 3600);
 
+                  $this->cache->save('access_token_' . $cacheKey, $accessToken['access_token'], 3600);
                   $this->authLibrarie->loginGoogle($user['email']);
+
                   return redirect()->to(base_url('admin'));
                }
             } catch (\Exception $e) {
@@ -419,7 +429,7 @@ class Login extends ResourceController
             if ($user) {
                log_message('info', "Usuário encontrado no banco: {$user['email']}");
                if ($refreshToken) {
-                  $this->updateUserRefreshToken($user['id'], $refreshToken);
+                  $this->updateUserRefreshToken($user['id'], $refreshToken, $user['foto'] ?? $googleUser->picture, $user['nome'] ?? $googleUser->name);
                }
             } else {
                log_message('info', 'Criando um novo usuário. Salvando informações...');
@@ -492,19 +502,25 @@ class Login extends ResourceController
    }
 
    /**
-    * Atualiza o token de atualização do usuário fornecido pelo ID.
+    * Atualiza o token de atualização (refresh token) de um usuário, juntamente com sua foto e nome.
     *
     * @param int $id ID do usuário a ser atualizado.
-    * @param string $refreshToken Novo token de atualização a ser associado ao usuário.
+    * @param string $refreshToken Novo token de atualização do usuário.
+    * @param string $foto URL ou caminho da foto do usuário.
+    * @param string $nome Nome do usuário.
     * @return void
+    * @throws RuntimeException Caso ocorra um erro durante a atualização.
     */
-   private function updateUserRefreshToken(int $id, string $refreshToken): void
+   private function updateUserRefreshToken(int $id, string $refreshToken, string $foto, string $nome): void
    {
-      $modelUsuario = new UsuarioModel();
       try {
-         $modelUsuario->update($id, ['refresh_token' => $refreshToken]);
-      } catch (\ReflectionException $e) {
-         throw new RuntimeException($e->getMessage());
+         (new UsuarioModel())->update($id, [
+            'refresh_token' => $refreshToken,
+            'foto' => $foto,
+            'nome' => $nome
+         ]);
+      } catch (ReflectionException $e) {
+         throw new RuntimeException('Erro ao atualizar o usuário: ' . $e->getMessage());
       }
    }
 
