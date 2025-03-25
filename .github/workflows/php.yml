@@ -2,7 +2,7 @@ name: PHP Composer
 
 on:
   pull_request:
-    branches: [ "main" ]
+    branches: [ "develop" ]
 
 permissions:
   contents: read

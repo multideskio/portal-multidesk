@@ -1,26 +1,83 @@
-<!doctype html>
-<html lang="pt-BR" dir="ltr" data-theme="dark">
-<?= $this->include('admin/head') ?>
-<body class="geex-dashboard">
-<?= $this->include('admin/header') ?>
-<main class="geex-main-content">
-   <?= $this->include('admin/sidebar') ?>
-   <?= $this->include('admin/customizer') ?>
-   <div class="geex-content">
-       <?= $this->include('admin/contentHeader') ?>
-       <?= $this->renderSection('content') ?>
-   </div>
-</main>
-<!-- JAVASCRIPTS START -->
-<script src="/assets/vendor/js/jquery/jquery-3.5.1.min.js"></script>
-<script src="/assets/vendor/js/jquery/jquery-ui.js"></script>
-<script src="/assets/vendor/js/bootstrap/bootstrap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.all.min.js"></script>
-<?= $this->renderSection('scripts') ?>
-<script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.27.0/dist/apexcharts.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.6.6/dragula.min.js" referrerpolicy="origin"></script>
-<script src="/assets/js/main.js"></script>
-<!-- JAVASCRIPTS END -->
+<?= $this->include('partials/main') ?>
+<head>
+   <?php echo view('partials/title-meta', array('title' => 'teste')); ?>
+   <?= $this->include('partials/head-css') ?>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#5840ff">
+</head>
+<body>
+
+<!-- Begin page -->
+<div id="layout-wrapper">
+   <?= $this->include('admin/menu') ?>
+    <!-- ============================================================== -->
+    <!-- Start right Content here -->
+    <!-- ============================================================== -->
+    <div class="main-content">
+
+        <div class="page-content">
+            <div class="container-fluid">
+               <?php echo view('partials/page-title', array('pagetitle' => 'Pages', 'title' => 'Starter')); ?>
+            </div>
+            <!-- container-fluid -->
+        </div>
+        <!-- End Page-content -->
+
+       <?= $this->include('partials/footer') ?>
+    </div>
+    <!-- end main content-->
+
+</div>
+<!-- END layout-wrapper -->
+
+
+<?= $this->include('partials/customizer') ?>
+
+<?= $this->include('partials/vendor-scripts') ?>
+
+<!-- App js -->
+<script src="/assets/js/app.js"></script>
+<script src="/app.js"></script>
+
+<script>
+    (async () => {
+        try {
+            // Verifica se os dados do usuário já estão no localStorage
+            const userData = localStorage.getItem('userData');
+
+            let data;
+            if (userData) {
+                // Se os dados já estiverem salvos, parseia o JSON salvo
+                data = JSON.parse(userData);
+            } else {
+                // Caso contrário, faz a requisição para buscar os dados
+                const response = await fetch('/api/v1/me');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch user data');
+                }
+                data = await response.json();
+
+                // Armazena os dados no localStorage
+                localStorage.setItem('userData', JSON.stringify(data));
+            }
+
+            // Atualiza os elementos no DOM com os dados do usuário
+            const profileFoto = document.getElementById('profile-foto');
+            const profileName = document.getElementById('profile-name');
+            const profileEmail = document.getElementById('profile-email');
+
+            if (profileFoto) {
+                profileFoto.setAttribute('src', data.foto);
+                profileFoto.style.display = 'block';
+            }
+            if (profileName) profileName.textContent = data.nome;
+            if (profileEmail) profileEmail.textContent = data.email;
+
+        } catch (error) {
+            console.error(error.message);
+        }
+    })();
+</script>
 </body>
+
 </html>
