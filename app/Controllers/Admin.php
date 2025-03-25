@@ -7,7 +7,11 @@ use CodeIgniter\HTTP\ResponseInterface;
 
 class Admin extends BaseController
 {
-    public function index(): ResponseInterface
+   public function index(): string
+   {
+      return view('admin/dashboard/home');
+   }
+    public function indexTest(): ResponseInterface
     {
        $data = $this->session->get('data');
        
