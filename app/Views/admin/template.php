@@ -11,12 +11,12 @@
        <?= $this->renderSection('content') ?>
    </div>
 </main>
-
 <!-- JAVASCRIPTS START -->
 <script src="/assets/vendor/js/jquery/jquery-3.5.1.min.js"></script>
 <script src="/assets/vendor/js/jquery/jquery-ui.js"></script>
 <script src="/assets/vendor/js/bootstrap/bootstrap.min.js"></script>
-<?php //= $this->fetch('custom_scripts') ?>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.all.min.js"></script>
+<?= $this->renderSection('scripts') ?>
 <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.27.0/dist/apexcharts.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dragula/3.6.6/dragula.min.js" referrerpolicy="origin"></script>

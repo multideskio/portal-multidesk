@@ -29,6 +29,8 @@
     <!-- FONTS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@iconscout/unicons@4.0.8/css/line.min.css">
 
+    <?= $this->renderSection('css') ?>
+
     <script>
         // RENDER LOCAL STORAGE JAVASCRIPT
         if (localStorage.theme) document.documentElement.setAttribute("data-theme", localStorage.theme);

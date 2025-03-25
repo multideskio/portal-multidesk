@@ -36,6 +36,14 @@ $routes->post("novasenha", 'Admin\V1\Login::novaSenha');
 $routes->post("confirmar/(:any)", 'Admin\V1\Login::confirmar/$1');
 
 
+//ROUTS FRONT ADMIN
 $routes->group("admin", ['filter' => 'admin-auth'], static function ($routes) {
    $routes->get("/", 'Admin::index');
+
+   $routes->group("cursos", static function ($routes) {
+      $routes->get("/", 'Admin\Cursos::index');
+      $routes->get("novo", 'Admin\Cursos::novo');
+      $routes->get("lista", 'Admin\Cursos::lista');
+      $routes->get("participantes", 'Admin\Cursos::participantes');
+   });
 });

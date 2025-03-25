@@ -1,7 +1,13 @@
+<?php
+/**
+ * @var string $titulo
+ * @var string $descricao
+ */
+?>
 <div class="geex-content__header">
     <div class="geex-content__header__content">
-        <h2 class="geex-content__header__title"><?= 'TESTE' ?></h2>
-        <p class="geex-content__header__subtitle"><?= 'TESTE' ?></p>
+        <h2 class="geex-content__header__title"><?= $titulo ?></h2>
+        <p class="geex-content__header__subtitle"><?= $descricao ?></p>
     </div>
 
     <div class="geex-content__header__action">
