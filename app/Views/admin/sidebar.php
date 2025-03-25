@@ -50,16 +50,16 @@
                     </a>
                     <ul class="geex-sidebar__submenu" style="margin-top: 5px;">
                         <li class="geex-sidebar__menu__item">
-                            <a href="" class="geex-sidebar__menu__link">Painel de controle</a>
+                            <a href="/admin/cursos" class="geex-sidebar__menu__link">Painel de controle</a>
                         </li>
                         <li class="geex-sidebar__menu__item">
-                            <a href="#" class="geex-sidebar__menu__link geex-customizer__btn--top">Criar novo</a>
+                            <a href="/admin/cursos/novo" class="geex-sidebar__menu__link">Criar novo</a>
                         </li>
                         <li class="geex-sidebar__menu__item">
-                            <a href="#" class="geex-sidebar__menu__link geex-customizer__btn--side">Lista de cursos</a>
+                            <a href="/admin/cursos/lista" class="geex-sidebar__menu__link">Lista de cursos</a>
                         </li>
                         <li class="geex-sidebar__menu__item">
-                            <a href="#" class="geex-sidebar__menu__link geex-customizer__btn--light">Participantes</a>
+                            <a href="/admin/cursos/participantes" class="geex-sidebar__menu__link">Participantes</a>
                         </li>
                     </ul>
                 </li>

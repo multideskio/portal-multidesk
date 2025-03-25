@@ -9,7 +9,9 @@ class Admin extends BaseController
 {
    public function index(): string
    {
-      return view('admin/dashboard/home');
+      $data['titulo'] = 'Dashboard';
+      $data['descricao'] = 'Acampanhe sua plataforma';
+      return view('admin/dashboard/home', $data);
    }
     public function indexTest(): ResponseInterface
     {
