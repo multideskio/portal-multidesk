@@ -40,14 +40,24 @@ $routes->post("confirmar/(:any)", 'Admin\V1\Login::confirmar/$1');
 $routes->group("admin", ['filter' => 'admin-auth'], static function ($routes) {
    $routes->get("/", 'Admin::index');
 
-   $routes->group("cursos", static function ($routes) {
-      $routes->get("/", 'Admin\Cursos::index');
-      $routes->get("novo", 'Admin\Cursos::novo');
-      $routes->get("lista", 'Admin\Cursos::lista');
-      $routes->get("participantes", 'Admin\Cursos::participantes');
+   $routes->group("eventos", static function ($routes) {
+      $routes->get("/", 'Admin\Eventos::index');
+      $routes->get("novo", 'Admin\Eventos::novo');
+      $routes->get("lista", 'Admin\Eventos::lista');
+      $routes->get("participantes", 'Admin\Eventos::participantes');
+      $routes->get("deletar/(:num)", 'Admin\V1\Eventos::delete/$1');
    });
 });
 
+//ROUTS BACKEND
 $routes->group("api/v1", ['filter' => 'admin-auth'], static function ($routes) {
    $routes->get("me", 'Admin\V1\Login::me');
+
+   $routes->group("eventos", static function ($routes) {
+      $routes->get("", 'Admin\V1\Eventos::index');
+      $routes->get("(:num)", 'Admin\V1\Eventos::show/$1');
+      $routes->post("", 'Admin\V1\Eventos::create');
+      $routes->post("(:num)", 'Admin\V1\Eventos::update/$1');
+      $routes->delete("(:num)", 'Admin\V1\Eventos::delete/$1');
+   });
 });
