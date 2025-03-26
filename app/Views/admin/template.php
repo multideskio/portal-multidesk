@@ -1,6 +1,11 @@
 <?= $this->include('partials/main') ?>
+<?php
+$page   = $page ?? 'Dashboard';
+$titulo = $titulo ?? 'Multidesk';
+?>
 <head>
-   <?php echo view('partials/title-meta', array('title' => 'teste')); ?>
+   <?php echo view('partials/title-meta', array('title' => $titulo)); ?>
+   <?= $this->renderSection('css') ?>
    <?= $this->include('partials/head-css') ?>
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#5840ff">
@@ -14,27 +19,22 @@
     <!-- Start right Content here -->
     <!-- ============================================================== -->
     <div class="main-content">
-
         <div class="page-content">
             <div class="container-fluid">
-               <?php echo view('partials/page-title', array('pagetitle' => 'Pages', 'title' => 'Starter')); ?>
+               <?php echo view('partials/page-title', array('pagetitle' => $page, 'title' => $titulo)); ?>
+               <?= $this->renderSection('content') ?>
             </div>
             <!-- container-fluid -->
         </div>
         <!-- End Page-content -->
-
        <?= $this->include('partials/footer') ?>
     </div>
     <!-- end main content-->
-
 </div>
 <!-- END layout-wrapper -->
-
-
 <?= $this->include('partials/customizer') ?>
-
 <?= $this->include('partials/vendor-scripts') ?>
-
+<?= $this->renderSection('scripts') ?>
 <!-- App js -->
 <script src="/assets/js/app.js"></script>
 <script src="/app.js"></script>
