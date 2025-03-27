@@ -89,15 +89,15 @@ class Eventos extends BaseController
     */
    public function confirmParticipante($slug = null)
    {
+      $values = [];
 
       $input = $this->request->getPost();
 
       $session = session();
 
-      $session->set('participantes', $input);
+
 
       $data['carrinho'] = $session->get('carrinho');
-      $data['participantes'] = $session->get('participantes');
 
       foreach ($input['idVariacao'] as $key => $value) {
          $values[$key] = [
@@ -109,8 +109,12 @@ class Eventos extends BaseController
          ];
       }
 
+      $session->set('participantes', $values);
+
+      $data['participantes'] = $session->get('participantes');
+
       echo "<pre>";
-      print_r($values);
+      print_r($data);
       echo "</pre>";
    }
 
