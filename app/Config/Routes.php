@@ -61,3 +61,16 @@ $routes->group("api/v1", ['filter' => 'admin-auth'], static function ($routes) {
       $routes->delete("(:num)", 'Admin\V1\Eventos::delete/$1');
    });
 });
+
+
+
+$routes->get("evento/(:any)", 'Eventos::index/$1');
+
+$routes->get("carrinho", 'Eventos::carrinho');
+$routes->get("participantes/(:any)", 'Eventos::participantes/$1');
+
+$routes->post("participantes", 'Eventos::confirmParticipante/$1');
+$routes->post("participantes/(:any)", 'Eventos::participantes/$1');
+
+
+$routes->post("carrinho", 'Eventos::carrinho');

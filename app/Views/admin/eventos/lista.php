@@ -17,45 +17,43 @@
             <tr>
                 <th>id</th>
                 <th>Titulo</th>
-                <th></th>
+                <th>Varições</th>
                 <th>Ações</th>
             </tr>
             </thead>
             <tbody>
-            <?php foreach ($eventos as $evento) : ?>
+            <?php foreach ($eventos['eventos'] as $evento) : ?>
                 <tr>
                     <td><?= $evento['id'] ?></td>
                     <td>
-                        <a href="/evento/<?= $evento['slug'] ?>" target="_blank">
-                           <?= $evento['titulo'] ?></a>
+                        <a href="/evento/<?= $evento['slug'] ?>" target="_blank" class="d-block">
+                           <?= $evento['titulo'] ?>
+                        </a>
+                        <a href="/evento/<?= $evento['slug'] ?>" target="_blank" class="d-block text-muted">
+                           <?= site_url("evento/" . $evento['slug']) ?>
+                        </a>
                     </td>
                     <td>
-                        <?php
-                        $builderVariacoes = $variacoesModel->where('evento_id', $evento['id']);
-                        $variacoes = $builderVariacoes->findAll();
-                        foreach ($variacoes as $variacao) {
-                            echo '<hr>';
-                            echo $variacao['id'] . '<br>';
-                            echo $variacao['titulo'] . '<br>';
-                            echo $variacao['descricao'] . '<br>';
-                            echo $variacao['valor'] . '<br>';
-                            echo $variacao['quantidade'] . '<br>';
-                            echo $variacao['data_inicio'] . '<br>';
-                            echo $variacao['data_fim'] . '<br>';
-                        }
-                        ?>
+
+                       <?php foreach ($evento['variacoes'] as $variacoes): ?>
+                           <span class="mb-2">
+                                <span class="badge badge-gradient-danger"> <?= $variacoes['nome'] ?> - <?= 'R$ ' . number_format($variacoes['preco'], 2, ',', '.') ?></span>
+                           </span>
+                       <?php endforeach; ?>
                     </td>
                     <td>
-                        <a href="/admin/eventos/editar/<?= $evento['id'] ?>" class="btn btn-primary"><i
-                                    class="mdi mdi-pencil"></i></a>
-                        <a href="/admin/eventos/deletar/<?= $evento['id'] ?>" class="btn btn-danger"><i
-                                    class="mdi mdi-delete"></i></a>
+                        <a href="/admin/eventos/editar/<?= $evento['id'] ?>"
+                           style="text-decoration: none; color: inherit;" title="Editar">
+                            <i class="mdi mdi-pencil"></i></a>
+                        <a href="/admin/eventos/deletar/<?= $evento['id'] ?>"
+                           style="text-decoration: none; color: inherit;" title="Deletar">
+                            <i class="mdi mdi-delete"></i></a>
                     </td>
                 </tr>
             <?php endforeach; ?>
             </tbody>
         </table>
-        <?= $pager->links() ?>
+       <?= $eventos['pager']->links() ?>
     </div>
 </div>
 
