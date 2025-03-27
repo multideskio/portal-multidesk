@@ -90,6 +90,7 @@ class Eventos extends ResourceController
             // Dados das variações do evento
             $dataVariacao[] = [
                'evento_id' => $id, // ID do evento associado
+               'ativo' => $input['ativo'][$item] ?? false,
                'titulo' => $variacao, // Título da variação
                'descricao' => $input['desc_variacao'][$item], // Descrição da variação
                'minimo' => $input['num_min'][$item], // Quantidade mínima
