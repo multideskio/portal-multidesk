@@ -3,15 +3,16 @@
 
 <?= $this->endSection() ?>
 <?= $this->section('content') ?>
-<form autocomplete="off" class="needs-validation" novalidate method="post" action="/api/v1/eventos" enctype="multipart/form-data">
+<form autocomplete="off" class="needs-validation" novalidate method="post" action="/api/v1/eventos"
+      enctype="multipart/form-data">
     <div class="row">
         <div class="col-lg-9">
            <?php
            if (session()->getFlashdata('success')) {
-              echo '<div class="alert alert-success">' . session()->getFlashdata('success'). '</div>';
+              echo '<div class="alert alert-success">' . session()->getFlashdata('success') . '</div>';
            }
            if (session()->getFlashdata('error')) {
-               echo '<div class="alert alert-danger">' . session()->getFlashdata('error'). '</div>';
+              echo '<div class="alert alert-danger">' . session()->getFlashdata('error') . '</div>';
            }
            ?>
             <div class="card">
@@ -35,7 +36,8 @@
                 <div class="card-body">
                     <div class="mb-3">
                         <label for="endereco" class="form-label fw-bold">Endereço completo</label>
-                        <textarea name="endereco" id="endereco" cols="30" rows="5" class="form-control" required minlength="10" maxlength="255"></textarea>
+                        <textarea name="endereco" id="endereco" cols="30" rows="5" class="form-control" required
+                                  minlength="10" maxlength="255"></textarea>
                     </div>
                 </div>
             </div>
@@ -47,9 +49,11 @@
                 </div>
                 <!-- end card header -->
                 <div class="card-body">
-                    <div class="alert alert-primary">As variações permitem oferecer ingressos com valores diferentes, atendendo às suas necessidades.
+                    <div class="alert alert-primary">As variações permitem oferecer ingressos com valores diferentes,
+                        atendendo às suas necessidades.
                         Por exemplo, você pode disponibilizar uma opção com material incluso a um valor específico e
-                        outra com preço diferenciado sem o material.</div>
+                        outra com preço diferenciado sem o material.
+                    </div>
                     <div class="text-end mb-3">
                         <button type="button" class="btn btn-primary add-variation-btn" id="add-variation-btn"><i
                                     class="mdi mdi-plus"></i>
@@ -105,6 +109,11 @@
                                             <input type="number" id="quantidade" name="quantidade[]"
                                                    class="form-control" value="1">
                                         </div>
+                                    </div>
+                                    <div class="form-check form-switch form-switch-lg" dir="ltr">
+                                        <input type="checkbox" class="form-check-input" id="customSwitchsizelg"
+                                               checked="" name="ativo[]" value="1">
+                                        <label class="form-check-label" for="customSwitchsizelg">Ativo</label>
                                     </div>
                                 </div>
                             </div>
@@ -263,6 +272,11 @@
                             <label for="quantidade-${index}">Qtd</label>
                             <input type="number" id="quantidade-${index}" name="quantidade[]" class="form-control" value="1">
                         </div>
+                    </div>
+                    <div class="form-check form-switch form-switch-lg" dir="ltr">
+                        <input type="checkbox" class="form-check-input" id="customSwitchsizelg-${index}"
+                               checked="" name="ativo[]" value="1">
+                        <label class="form-check-label" for="customSwitchsizelg-${index}">Ativo</label>
                     </div>
                 </div>
             </div>
