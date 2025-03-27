@@ -29,21 +29,9 @@ class Eventos extends BaseController
       $data['descricao'] = 'Lista de eventos cadastrados';
 
       $modelEventos = new EventosModel();
-      $modelVariacoes = new VariacoesModel();
 
-      // Implement pagination for the list of events
-      $perPage = 10; // Number of items per page
-
-      $currentPage = $this->request->getGet('page') ?? 1; // Get the current page or default to 1
-      $orderBy = $this->request->getPost('order') === 'ASC' ? 'ASC' : 'DESC';
-
-      $builde = $modelEventos->orderBy('id', $orderBy);
-
-      $data['total'] = $builde->countAllResults(); // Total events count
-      $data['eventos'] = $builde->paginate($perPage, 'default', $currentPage); // Paginate events
-      $data['pager'] = $builde->pager; // Get the pagination links
-
-      $data['variacoesModel'] = $modelVariacoes;
+      $page = $this->request->getGet('page') ?? 1 ;
+      $data['eventos'] = $modelEventos->getEventosPaginate($page);
 
       return view('admin/eventos/lista', $data);
    }
