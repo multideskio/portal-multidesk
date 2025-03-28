@@ -127,6 +127,7 @@ class EventosModel extends Model
 
    public function getEventosPaginate($page = null, $order = null): array
    {
+      $session = session();
       $perPage = 10; // Number of items per page
       $currentPage = $page ?? 1; // Get the current page or default to 1
       $orderBy = $order === 'ASC' ? 'ASC' : 'DESC';
@@ -135,6 +136,7 @@ class EventosModel extends Model
          ->select('eventos.*, variacoes_eventos.id as variacao_id, variacoes_eventos.titulo as variacao_nome, variacoes_eventos.valor as variacao_preco')
          ->join('variacoes_eventos', 'variacoes_eventos.evento_id = eventos.id', 'left')
          ->orderBy('eventos.id', $orderBy)
+         ->where('eventos.empresa_id', $session->get('data')['empresa'])
          ->paginate($perPage, 'default', $currentPage);
 
       return [
