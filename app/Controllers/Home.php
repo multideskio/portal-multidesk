@@ -17,7 +17,7 @@ class Home extends BaseController
       $tipo      = 'pix';
 
       $pedido = [
-         'valor'     => 5,
+         'valor'     => 0.05,
          'descricao' => 'Ingresso para o Evento X'
       ];
 
@@ -39,7 +39,11 @@ class Home extends BaseController
          $mp = new MPProcessor();
          $resposta = $mp->processar($tipo, $empresaId, $pedido, $cliente, $gateway);
 
+         log_message('debug', 'Resposta do gateway: ' . json_encode($resposta, JSON_THROW_ON_ERROR));
+
          return $this->response->setJSON($resposta);
+
+
       } catch (\Throwable $e) {
          return $this->response->setJSON([
             'erro' => $e->getMessage()
