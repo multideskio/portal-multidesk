@@ -39,11 +39,19 @@ class CreateEmpresaGateways extends Migration
             'type' => 'VARCHAR',
             'constraint' => 50
          ], // exemplo: mp, pagarme, stripe
+         'public_key' => [
+            'type' => 'TEXT',
+            'null' => true
+         ],
          'access_token' => [
             'type' => 'TEXT',
             'null' => true
          ],
-         'public_key' => [
+         'public_key_test' => [
+            'type' => 'TEXT',
+            'null' => true
+         ],
+         'access_token_test' => [
             'type' => 'TEXT',
             'null' => true
          ],
