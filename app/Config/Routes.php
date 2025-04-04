@@ -49,7 +49,7 @@ $routes->group("admin", ['filter' => 'admin-auth'], static function ($routes) {
    });
 });
 
-//ROUTS BACKEND
+//ROUTS BACKEND API PROTECTED
 $routes->group("api/v1", ['filter' => 'admin-auth'], static function ($routes) {
    $routes->get("me", 'Admin\V1\Login::me');
 
@@ -62,15 +62,23 @@ $routes->group("api/v1", ['filter' => 'admin-auth'], static function ($routes) {
    });
 });
 
+//ROUTS BACKEND API OPEN
+$routes->group("api/v1", static function ($routes) {
+   $routes->get("sicred", 'Admin\V1\Sicred::index');
+});
+
+
 
 
 $routes->get("evento/(:any)", 'Eventos::index/$1');
+$routes->post("participantes/(:any)", 'Eventos::participantes/$1');
+$routes->post("confirmar-participantes/(:segment)", 'Eventos::confirmParticipante/$1');
+
+$routes->get("checkout/(:segment)", 'Eventos::checkout/$1');
+
+$routes->post("checkout/processar", 'Eventos::teste');
+
+$routes->post('remover-item', 'Eventos::removerItem');
 
 $routes->get("carrinho", 'Eventos::carrinho');
-$routes->get("participantes/(:any)", 'Eventos::participantes/$1');
-
-$routes->post("participantes", 'Eventos::confirmParticipante/$1');
-$routes->post("participantes/(:any)", 'Eventos::participantes/$1');
-
-
 $routes->post("carrinho", 'Eventos::carrinho');

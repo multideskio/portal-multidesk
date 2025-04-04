@@ -35,7 +35,7 @@ abstract class BaseController extends Controller
     *
     * 
     */
-   //protected $helpers = [];
+   protected $helpers = ['form'];
    //protected ?object $session;
 
    /**
