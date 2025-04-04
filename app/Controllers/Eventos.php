@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\EventosModel;
+use App\Models\ItensPedidoModel;
 use App\Models\PedidoModel;
 use App\Models\UsuarioModel;
 use CodeIgniter\HTTP\RedirectResponse;
@@ -299,11 +300,14 @@ class Eventos extends BaseController
          }
       }
 
+      $modelItemPedido = new ItensPedidoModel(); // certifique-se que existe
+      $modelItemPedido->cadastrarItens($carrinho, $orderId);
+
       $data = [
          //'session' => $this->session->get('data'),
-         'vDados' => $verificaDados,
+         //'vDados' => $verificaDados,
          //'client' => $client,
-         //'carrinho' => $carrinho,
+         'carrinho' => $carrinho,
          //'participantes' => $participantes,
       ];
 

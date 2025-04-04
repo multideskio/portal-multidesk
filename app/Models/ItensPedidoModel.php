@@ -52,4 +52,28 @@ class ItensPedidoModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+
+    public function cadastrarItens($carrinho, $orderId): bool|int
+    {
+       $itemData = [];
+       foreach ($carrinho['itens'] as $item) {
+          $itemData[] = [
+             'pedido_id' => $orderId,
+             'variacao_evento_id' => $item['id_variacao'],
+             'quantidade' => $item['quantidade'],
+             'preco_unitario' => $item['preco'],
+             'subtotal' => $item['subtotal'],
+             'created_at' => date('Y-m-d H:i:s'),
+             'updated_at' => date('Y-m-d H:i:s'),
+          ];
+       }
+       try {
+          $this->where('pedido_id', $orderId)->delete(); // limpa antes
+          return $this->insertBatch($itemData);
+       } catch (\ReflectionException $e) {
+          log_message('error', $e->getMessage());
+          return false;
+       }
+    }
 }
