@@ -13,6 +13,7 @@
         "php": "^8.1",
         "codeigniter4/framework": "^4.0",
         "google/apiclient": "^2.18",
+        "mercadopago/dx-php": "^3.2.0",
         "ramsey/uuid": "^4.7"
     },
     "require-dev": {

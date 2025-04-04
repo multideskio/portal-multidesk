@@ -4,7 +4,6 @@ namespace App\Gateway\Mp;
 
 use App\Models\EmpresaGatewaysModel as GatewayCredentialModel;
 use Exception;
-use JsonException;
 use RuntimeException;
 
 class MPProcessor
@@ -18,10 +17,20 @@ class MPProcessor
 
    /**
     * Processa o pagamento com base no tipo (pix, card, etc)
-    * @throws JsonException
+    * @throws RuntimeException
     */
-   public function processar(string $tipo, int $empresaId, array $pedido, array $cliente, $gateway): array
+   public function processar(string $tipo, int $empresaId, array $pedido, array $cliente, $gateway): \MercadoPago\Resources\Payment
    {
+      // Validação do pedido e cliente
+      if (!isset($pedido['valor']) || $pedido['valor'] <= 0) {
+         throw new RuntimeException("Valor do pedido inválido.");
+      }
+
+      if (empty($cliente['cpf']) || empty($cliente['email'])) {
+         throw new RuntimeException("Dados do cliente incompletos.");
+      }
+
+      // Busca as credenciais ativas para o gateway
       $credenciais = $this->gatewayModel->getCredenciaisAtivas($empresaId, $gateway);
 
       if (!$credenciais) {
@@ -30,6 +39,7 @@ class MPProcessor
 
       $accessToken = $credenciais['access_token'];
 
+      // Processamento com base no tipo de pagamento
       switch ($tipo) {
          case 'pix':
             return (new PixHandler($accessToken))->gerarPagamento($pedido, $cliente);
