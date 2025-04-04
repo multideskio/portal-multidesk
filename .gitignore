@@ -86,6 +86,7 @@ phpunit
 #-------------------------
 
 !public/assets/vendor/
+!public/assets/libs/@ckeditor/ckeditor5-build-classic/build/
 vendor/
 
 
