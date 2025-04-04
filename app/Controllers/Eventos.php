@@ -244,10 +244,10 @@ class Eventos extends BaseController
 
    public function teste()
    {
-      echo "<pre>";
-      print_r($_POST);
-      print_r($this->session->get('carrinho'));
-      print_r($this->session->get('participantes'));
+//      echo "<pre>";
+//      print_r($_POST);
+//      print_r($this->session->get('carrinho'));
+//      print_r($this->session->get('participantes'));
 
    }
 }
