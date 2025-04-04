@@ -17,7 +17,7 @@ class Home extends BaseController
       $tipo      = 'pix';
 
       $pedido = [
-         'valor'     => 49.90,
+         'valor'     => 5,
          'descricao' => 'Ingresso para o Evento X'
       ];
 
