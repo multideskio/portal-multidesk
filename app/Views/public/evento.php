@@ -20,7 +20,7 @@
         </div>
         <!-- Coluna Direita: Formulário de Variações -->
         <div class="col-md-6">
-            <form action="/participantes/<?= esc($evento['slug']) ?>" method="post">
+            <?= form_open('participantes/'.esc($evento['slug'])) ?>
                 <input type="hidden" name="idEvento" value="<?= $evento['id'] ?>">
                 <input type="hidden" name="idEmpresa" value="<?= $evento['empresa_id'] ?>">
                 <input type="hidden" name="titulo_evento" value="<?= esc($evento['titulo']) ?>">
