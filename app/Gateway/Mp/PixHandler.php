@@ -6,8 +6,6 @@ use CodeIgniter\HTTP\CURLRequest;
 use Config\Services;
 use Exception;
 use JsonException;
-use RuntimeException;
-use Throwable;
 
 class PixHandler
 {
@@ -19,11 +17,16 @@ class PixHandler
          ? ($urlSandbox ?? 'https://api.mercadopago.com/')
          : ($urlProducao ?? 'https://api.mercadopago.com/');
 
+      $this->initializeClient($baseUrl, $accessToken);
+   }
+
+   private function initializeClient(string $baseUrl, string $accessToken): void
+   {
       $this->client = Services::curlrequest([
          'baseURI' => $baseUrl,
          'headers' => [
             'Authorization' => 'Bearer ' . $accessToken,
-            'Content-Type'  => 'application/json'
+            'Content-Type' => 'application/json'
          ]
       ]);
    }
@@ -33,10 +36,24 @@ class PixHandler
     */
    public function gerarPagamento(array $pedido, array $cliente): array
    {
-      $payload = [
+      $payload = $this->preparePayload($pedido, $cliente);
+
+      try {
+         $response = $this->client->post('v1/payments', ['json' => $payload]);
+         return $this->processResponse($response, $payload['external_reference']);
+      } catch (\Throwable $e) {
+         throw new Exception("Erro ao gerar pagamento PIX: " . $e->getMessage(), 0, $e);
+      }
+   }
+
+   private function preparePayload(array $pedido, array $cliente): array
+   {
+      return [
          "transaction_amount" => floatval($pedido['valor']),
          "description" => $pedido['descricao'] ?? 'Pagamento via Pix',
          "payment_method_id" => "pix",
+         "notification_url" => $pedido['notification_url'] ?? 'https://hook.multidesk.io/webhook/c6f721c2-5a95-4c25-87f8-93f3f33986ed',
+         "external_reference" => $pedido['referencia'] ?? uniqid('ref_', true),
          "payer" => [
             "email" => $cliente['email'],
             "first_name" => $cliente['nome'] ?? '',
@@ -47,25 +64,24 @@ class PixHandler
             ]
          ]
       ];
+   }
 
-      try {
-         $response = $this->client->post('v1/payments', [
-            'json' => $payload
-         ]);
-      } catch (Throwable $e) {
-         throw new RuntimeException("Erro ao gerar pagamento PIX: " . $e->getMessage());
-      }
-
-      $json = json_decode($response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+   private function processResponse($response, string $externalReference): array
+   {
+      $json = json_decode($response->getBody(), true);
 
       if (!isset($json['id'])) {
-         throw new RuntimeException("Erro inesperado ao gerar Pix. Resposta: " . json_encode($json));
+         throw new Exception("Erro inesperado ao gerar Pix. Resposta: " . json_encode($json));
       }
+
+      $transactionData = $json['point_of_interaction']['transaction_data'] ?? [];
 
       return [
          'payment_id' => $json['id'],
-         'qr_code' => $json['point_of_interaction']['transaction_data']['qr_code'],
-         'qr_code_base64' => $json['point_of_interaction']['transaction_data']['qr_code_base64'],
+         'qr_code' => $transactionData['qr_code'] ?? null,
+         'qr_code_base64' => $transactionData['qr_code_base64'] ?? null,
+         'ticket_url' => $transactionData['ticket_url'] ?? null,
+         'external_reference' => $externalReference,
          'status' => $json['status']
       ];
    }
