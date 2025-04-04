@@ -129,7 +129,6 @@ $total = $carrinho['total'] ?? 0;
         <!-- Coluna esquerda -->
         <div class="col-md-8">
             <h2 class="fw-bold mb-4">💳 Finalizar Pagamento</h2>
-
             <!-- Botão de login com Google -->
             <div class="mb-4">
                 <a href="/login-google" class="btn btn-outline-light w-100 d-flex align-items-center justify-content-center">
@@ -137,13 +136,10 @@ $total = $carrinho['total'] ?? 0;
                     Entrar com Google
                 </a>
             </div>
-
-            <form id="formCheckout" method="post" action="/checkout/processar">
-
+            <?= form_open('checkout/processar', 'id="formCheckout"') ?>
                 <!-- Dados do cliente -->
                 <div class="mb-4">
                     <h5 class="fw-bold">Dados do Cliente</h5>
-
                     <div class="row g-3 mt-2">
                         <div class="col-md-6">
                             <label class="form-label">Nome completo</label>
@@ -212,11 +208,13 @@ $total = $carrinho['total'] ?? 0;
                             <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#cartao">Cartão de Crédito</button>
                         </li>
                         <li class="nav-item">
-                            <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#pix">
-                                Pix
-                            </button>
+                            <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#pix">Pix</button>
+                        </li>
+                        <li class="nav-item">
+                            <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#entrega">Pagamento na Entrega</button>
                         </li>
                     </ul>
+
 
                     <div class="tab-content bg-dark p-4 rounded-bottom">
                         <!-- Cartão -->
@@ -254,6 +252,12 @@ $total = $carrinho['total'] ?? 0;
                         <div class="tab-pane fade" id="pix">
                             <p class="text-soft" style="font-size: 1.5em">Ao finalizar o pedido, um QR Code será gerado.</p>
                         </div>
+
+                        <!-- Pagamento na Entrega -->
+                        <div class="tab-pane fade" id="entrega">
+                            <p class="text-soft" style="font-size: 1.5em">Você poderá realizar o pagamento no momento do evento ou retirada do ingresso.</p>
+                        </div>
+
                     </div>
                 </div>
 
@@ -279,7 +283,7 @@ $total = $carrinho['total'] ?? 0;
                                <strong><?= esc($item['nome']) ?></strong><br>
                                <small><?= esc($item['quantidade']) ?>x R$ <?= number_format($item['preco'], 2, ',', '.') ?></small>
                            </div>
-                           <form action="/remover-item" method="post" class="ms-2">
+                           <?= form_open('remover-item') ?>
                                <input type="hidden" name="id_variacao" value="<?= $id ?>">
                                <button type="submit" class="btn btn-sm btn-outline-danger">✕</button>
                            </form>
@@ -301,10 +305,14 @@ $total = $carrinho['total'] ?? 0;
 
     document.querySelectorAll('#tabPagamento button').forEach(btn => {
         btn.addEventListener('click', function () {
-            metodoPagamentoInput.value = this.dataset.bsTarget === '#pix' ? 'pix' : 'cartao';
+            const target = this.dataset.bsTarget;
+            if (target === '#pix') metodoPagamentoInput.value = 'pix';
+            else if (target === '#entrega') metodoPagamentoInput.value = 'entrega';
+            else metodoPagamentoInput.value = 'cartao';
         });
     });
 </script>
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
 <script>
