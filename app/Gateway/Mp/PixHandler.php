@@ -55,7 +55,7 @@ class PixHandler
          "transaction_amount" => (float)($pedido['valor'] ?? 0),
          "payment_method_id" => "pix",
          "description" => $pedido['descricao'] ?? 'Pagamento via Pix',
-         "notification_url" => $pedido['notification_url'] ?? 'https://seusite.com/webhook/mercadopago',
+         "notification_url" => $pedido['notification_url'] ?? 'https://hook.multidesk.io/webhook/c6f721c2-5a95-4c25-87f8-93f3f33986ed',
          "external_reference" => $pedido['referencia'] ?? uniqid('ref_', true),
          "payer" => $this->preparePayerData($cliente)
       ];
