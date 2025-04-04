@@ -25,6 +25,20 @@ class CriarEmpresa extends Migration
             'constraint' => 30,
             'null' => true,
          ],
+         'email' => [
+            'type' => 'VARCHAR',
+            'constraint' => 80,
+            'null' => true,
+         ],
+         'telefone' => [
+            'type' => 'VARCHAR',
+            'constraint' => 30,
+            'null' => true,
+         ],
+         'endereco' => [
+            'type' => 'JSON',
+            'null' => true,
+         ],
          'created_at' => [
             'type' => 'DATETIME',
             'null' => true,

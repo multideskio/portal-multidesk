@@ -9,19 +9,12 @@ class CreateParticipantes extends Migration
    {
       $db = db_connect();
       $db->disableForeignKeyChecks();
+
       $this->forge->addField([
          'id' => [
             'type' => 'INT',
             'unsigned' => true,
             'auto_increment' => true,
-         ],
-         'pedido_id' => [
-            'type' => 'INT',
-            'unsigned' => true,
-         ],
-         'variacao_evento_id' => [
-            'type' => 'INT',
-            'unsigned' => true,
          ],
          'nome' => [
             'type' => 'VARCHAR',
@@ -30,31 +23,19 @@ class CreateParticipantes extends Migration
          'email' => [
             'type' => 'VARCHAR',
             'constraint' => 80,
+            'unique' => true
          ],
          'telefone' => [
             'type' => 'VARCHAR',
             'constraint' => 20,
+            'null' => true,
          ],
-         'uuid' => [
-            'type' => 'CHAR',
-            'constraint' => 36,
-            'unique' => true,
-         ],
-         'qr_code_path' => [
+         'cpf' => [
             'type' => 'VARCHAR',
-            'constraint' => 255,
+            'constraint' => 14,
             'null' => true,
-         ],
-         'verificado' => [
-            'type' => 'TINYINT',
-            'constraint' => 1,
-            'default' => 0,
-            'comment' => '0 = não validado, 1 = validado na entrada'
-         ],
-         'extras' => [
-            'type' => 'JSON',
-            'null' => true,
-            'comment' => 'Campos personalizados definidos pelo produtor do evento',
+            'default' => null,
+            'comment' => 'Opcional, não utilizado como identificador único'
          ],
          'created_at' => [
             'type' => 'DATETIME',
@@ -71,10 +52,10 @@ class CreateParticipantes extends Migration
       ]);
 
       $this->forge->addKey('id', true);
-      $this->forge->addForeignKey('pedido_id', 'pedidos', 'id', 'CASCADE', 'CASCADE');
-      $this->forge->addForeignKey('variacao_evento_id', 'variacoes_eventos', 'id', 'CASCADE', 'CASCADE');
       $this->forge->createTable('participantes', true);
+
       $db->enableForeignKeyChecks();
+
    }
 
    public function down()
