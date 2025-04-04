@@ -40,6 +40,7 @@ class CriarEventos extends Migration
          ],
          'campos' => [
             'type' => 'JSON',
+            'null' => true,
          ],
          'capa' => [
             'type' => 'VARCHAR',
@@ -47,6 +48,7 @@ class CriarEventos extends Migration
          ],
          'meta' => [
             'type' => 'JSON',
+            'null' => true,
          ],
          'status' => [
             'type' => 'ENUM',

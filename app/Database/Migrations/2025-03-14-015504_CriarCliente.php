@@ -21,6 +21,10 @@ class CriarCliente extends Migration
             'type' => 'INT',
             'unsigned' => true,
          ],
+         'usuario_id' => [
+            'type' => 'INT',
+            'unsigned' => true,
+         ],
          'nome' => [
             'type' => 'VARCHAR',
             'constraint' => 80,
@@ -42,26 +46,9 @@ class CriarCliente extends Migration
             'type' => 'VARCHAR',
             'constraint' => 30,
          ],
-         'senha' => [
-            'type' => 'VARCHAR',
-            'constraint' => 255,
-         ],
-         'token' => [
-            'type' => 'VARCHAR',
-            'constraint' => 255,
-         ],
-         'code' => [
-            'type' => 'VARCHAR',
-            'constraint' => 6,
-         ],
-         'verificado' => [
-            'type' => 'TINYINT',
-            'constraint' => 1,
-            'default' => 0,
-         ],
-         'foto' => [
-            'type' => 'VARCHAR',
-            'constraint' => 255,
+         'endereco' => [
+            'type' => 'JSON',
+            'null' => true,
          ],
          'created_at' => [
             'type' => 'DATETIME',
