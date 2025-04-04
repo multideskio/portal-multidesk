@@ -11,61 +11,129 @@
     <link rel="stylesheet" href="/assets/libs/bootstrap/css/bootstrap.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #151515FF;
-            color: rgba(232, 232, 232, 0.56);
+
+        :root {
+            --bg-dark: #1f1f1f;
+            --bg-darker: #121212;
+            --text-light: #eaeaea;
+        }
+
+        html, body {
+            height: 100%;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
             font-family: 'Montserrat', sans-serif;
-            font-size: 16px;
-            line-height: 1.5;
-            height: 100vh;
         }
 
-        footer{
-            background-color: #151515FF;
+        body {
+            display: flex;
+            flex-direction: column;
         }
 
-        h1 {
-            font-size: 36px;
-            font-weight: 900;
-            margin: 0;
+        main {
+            flex: 1 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-top: 3rem;
+            padding-bottom: 3rem;
         }
 
-        h3 {
-            font-size: 2.5em;
-            font-weight: 900;
+        footer {
+            background-color: var(--bg-darker);
+            padding: 15px 0;
+            text-align: center;
+            font-size: 14px;
+            color: #aaa;
+            flex-shrink: 0;
         }
-
-        h5 {
-            font-size: 1.2em;
-            font-weight: 900;
+        .ticket-card {
+            background-color: #2a2a2a;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            height: 100%;
         }
-
-        .description_card {
-            font-size: 0.9em;
-            font-weight: 400;
+        .ticket-card:hover {
+            background-color: #333;
+            transform: scale(1.01);
         }
-
-        #colum_1 {
-            background-color: #151515;
-            color: #e1e1e1;
+        .badge-restante {
+            background-color: #dc3545;
+            padding: 0.4em 0.6em;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
         }
-
-        #colum_2 {
+        .qtd-input {
             background-color: #000;
             color: #fff;
+            border: 1px solid #555;
+            border-radius: 8px;
+            padding: 6px 12px;
+            text-align: center;
+            max-width: 80px;
         }
 
-        @media (max-width: 991px) {
-            #colum_2 {
-                display: none !important;
-            }
+        .btn-light {
+            background-color: #fff;
+            color: #000;
+            font-weight: 600;
+            border-radius: 10px;
+            padding: 12px 30px;
+        }
+
+        .btn-light:hover {
+            background-color: #ddd;
+        }
+
+        .btn-continuar {
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 14px 40px;
+            border-radius: 12px;
+        }
+        .text-soft {
+            color: rgba(255, 255, 255, 0.7) !important;
         }
     </style>
 </head>
 <body>
-<?= $this->renderSection('content') ?>
-<script src="/assets/libs/bootstrap/js/bootstrap.min.js" defer></script>
+<main>
+   <?= $this->renderSection('content') ?>
+</main>
+<footer>
+    &copy; <?= date('Y') ?> Portal Multidesk.io — Todos os direitos reservados.
+</footer>
+<script src="/assets/libs/bootstrap/js/bootstrap.bundle.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<?php if (session()->getFlashdata('msg')): ?>
+    <script>
+        Swal.fire({
+            title: 'Tudo certo!',
+            text: "<?= esc(session()->getFlashdata('msg')) ?>",
+            icon: 'success',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'OK'
+        });
+    </script>
+<?php endif; ?>
+<?php if (session()->getFlashdata('erro')): ?>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            Swal.fire({
+                title: 'Opa!',
+                text: "<?= esc(session()->getFlashdata('erro')) ?>",
+                icon: 'error',
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Fechar'
+            });
+        })
+    </script>
+<?php endif; ?>
+<?= $this->renderSection('scripts') ?>
 </body>
 </html>

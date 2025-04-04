@@ -1,78 +1,108 @@
 <?= $this->extend('public/template') ?>
-
 <?= $this->section('content') ?>
-<?php
-$evento = $evento ?? [];
-?>
-
-<div class="container-fluid vh-100 d-flex flex-column">
-    <div class="row flex-grow-1 align-items-stretch">
-        <div class="col-xxl-8 col-lg-8 p-5 d-flex flex-column justify-content-center text-center" id="colum_1">
-            <h1><?= esc($evento[0]['titulo']) ?></h1>
-           <?= esc($evento[0]['descricao']) ?>
-            <hr class="mb-4">
-            <div class="alert alert-warning alert-dismissible fade show fw-medium text-start" role="alert">
-                Escolha uma opção de compra e coloque a quantidade de entradas desejada.
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+<?php $evento = $evento[0] ?? []; ?>
+<div class="container py-5">
+    <div class="row g-4">
+        <!-- Coluna Esquerda: Resumo do Evento -->
+        <div class="col-md-6">
+            <div class="p-4 rounded-4 shadow-sm" style="background-color: #2a2a2a; color: #eaeaea;">
+                <h1 class="fw-bold mb-2"><?= esc($evento['titulo']) ?></h1>
+                <p class="text-soft"><?= $evento['descricao'] ?></p>
+               <?php if (!empty($evento['meta'])):
+                  $meta = json_decode($evento['meta'], true);
+                  if (!empty($meta['duracao'])): ?>
+                      <p class="small text-soft"><?= esc($meta['duracao']) ?></p>
+                  <?php endif; ?>
+               <?php endif; ?>
+                <hr class="border-secondary">
+                <p class="small">Escolha a quantidade desejada.</p>
             </div>
-           <?php foreach ($evento as $eventoItem): ?>
-               <div class="row">
-                  <?php foreach ($eventoItem['variacoes'] as $variacao):
-                     if ($variacao['encerra'] >= date('Y-m-d H:i:s') && $variacao['status'] == 1) :
-                        ?>
-                         <div class="col-xxl-4 col-md-6 shadow-lg">
-                             <form action="/participantes/<?= $evento[0]['slug'] ?>?id=<?= $variacao['id'] ?>"
-                                   method="post" enctype="multipart/form-data">
-
-                                 <input type="hidden" value="<?= $evento[0]['id'] ?>" name="idEvento">
-                                 <input type="hidden" value="<?= $evento[0]['empresa_id'] ?>" name="idEmpresa">
-                                 <input type="hidden" value="<?= $evento[0]['titulo'] ?>" name="titulo_evento">
-                                 <input type="hidden" value="<?= $variacao['preco'] ?>" name="precoVariacao">
-                                 <input type="hidden" value="<?= $eventoItem['id'] ?>" name="idVariacao">
-
-                                 <div class="card mb-3">
-                                     <div class="card-body">
-                                         <h5 class="card-title">
-                                            <?= esc($variacao['nome']) ?>
-                                         </h5>
-                                         <p class="description_card">
-                                            <?= esc($variacao['descricao']) ?>
-                                         </p>
-                                         <span class="badge text-bg-danger">10 restantes</span>
-                                         <div class="text-center mt-3 d-flex flex-column align-items-center">
-                                             <input type="number" class="form-control qtd-input" value="0" min="<?= $variacao['minimo'] ?>"
-                                                    max="<?= $variacao['maximo'] ?>"
-                                                    style="max-width: 100px;" aria-describedby="qtdHelp" name="qtd"
-                                                    id="qtd">
-                                             <label for="qtd" class="text-muted mt-2">Insira valores entre <?= $variacao['minimo'] ?> e
-                                                <?= $variacao['maximo'] ?>.</label>
-                                         </div>
-                                         <div class="valor">
-                                             <h3>R$ <?= number_format($variacao['preco'], 2, ',', '.') ?></h3>
-                                         </div>
-                                     </div>
-                                     <div class="card-footer">
-                                         <div class="text-end">
-                                             <button type="submit" class="btn btn-primary comprar-btn">Comprar
-                                             </button>
-                                         </div>
-                                     </div>
-                                 </div>
-                             </form>
-                         </div>
-                     <?php endif; ?>
-                  <?php endforeach; ?>
-               </div>
-           <?php endforeach; ?>
         </div>
-        <div class="col-xxl-4 col-lg-4 p-4 d-flex justify-content-center align-items-center flex-column" id="colum_2">
-            <h1><?= esc($evento[0]['titulo']) ?></h1>
-           <?= esc($evento[0]['descricao']) ?>
-            <!--            <img src="https://placehold.co/400x400" alt="" class="img-fluid rounded-2" loading="lazy">-->
+        <!-- Coluna Direita: Formulário de Variações -->
+        <div class="col-md-6">
+            <?= form_open('participantes/'.esc($evento['slug'])) ?>
+                <input type="hidden" name="idEvento" value="<?= $evento['id'] ?>">
+                <input type="hidden" name="idEmpresa" value="<?= $evento['empresa_id'] ?>">
+                <input type="hidden" name="titulo_evento" value="<?= esc($evento['titulo']) ?>">
+                <div class="d-flex flex-column gap-4">
+                   <?php foreach ($evento['variacoes'] as $variacao): ?>
+                      <?php if ($variacao['encerra'] >= date('Y-m-d H:i:s') && $variacao['status'] == 1): ?>
+                           <div class="p-4 rounded-4 shadow-sm ticket-card">
+                               <div class="d-flex justify-content-between align-items-center mb-2">
+                                   <h5 class="mb-0"><?= esc($variacao['nome']) ?></h5>
+                                   <span class="badge badge-restante">10 restantes</span>
+                               </div>
+                               <p class="text-soft mb-2"><?= esc($variacao['descricao']) ?></p>
+                               <div class="d-flex align-items-center gap-3 mt-3">
+                                   <label for="qtd_<?= $variacao['id'] ?>" class="mb-0">Qtd:</label>
+                                   <input
+                                           type="number"
+                                           name="qtd[<?= $variacao['id'] ?>]"
+                                           min="0"
+                                           max="<?= $variacao['maximo'] ?>"
+                                           value="0"
+                                           required
+                                           class="qtd-input"
+                                           data-preco="<?= $variacao['preco'] ?>"
+                                           data-target="subtotal_<?= $variacao['id'] ?>">
+                                   <span class="ms-auto ticket-price">
+            <span id="subtotal_<?= $variacao['id'] ?>">R$ <?= number_format($variacao['preco'], 2, ',', '.') ?></span>
+        </span>
+                               </div>
+                           </div>
+
+                      <?php endif; ?>
+                   <?php endforeach; ?>
+                </div>
+                <div class="text-end mt-5">
+                    <button type="submit" class="btn btn-light btn-lg btn-continuar">Continuar</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
-
-
 <?= $this->endSection() ?>
 
+<?= $this->section('scripts') ?>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.querySelector('form');
+        const inputs = document.querySelectorAll('.qtd-input');
+
+        // Atualiza o subtotal por variação
+        inputs.forEach(input => {
+            input.addEventListener('input', () => {
+                const preco = parseFloat(input.dataset.preco);
+                const qtd = parseInt(input.value) || 0;
+                const targetId = input.dataset.target;
+                const target = document.getElementById(targetId);
+                const subtotal = preco * qtd;
+
+                if (target) {
+                    target.innerText = subtotal.toLocaleString('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL'
+                    });
+                }
+            });
+        });
+
+        // Bloqueia envio se tudo for 0
+        form.addEventListener('submit', (e) => {
+            let peloMenosUm = false;
+
+            inputs.forEach(input => {
+                const qtd = parseInt(input.value) || 0;
+                if (qtd > 0) {
+                    peloMenosUm = true;
+                }
+            });
+
+            if (!peloMenosUm) {
+                e.preventDefault();
+                alert('Selecione ao menos uma variação de ingresso.');
+            }
+        });
+    });
+</script>
+<?= $this->endSection() ?>
