@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\EventosModel;
+use App\Models\UsuarioModel;
 use CodeIgniter\HTTP\RedirectResponse;
 
 class Eventos extends BaseController
@@ -82,11 +83,11 @@ class Eventos extends BaseController
 
                $carrinho[$idVariacao] = [
                   'id_variacao' => $idVariacao,
-                  'nome'        => $variacaoEncontrada['nome'],
-                  'descricao'   => $variacaoEncontrada['descricao'],
-                  'preco'       => $variacaoEncontrada['preco'],
-                  'quantidade'  => $quantidade,
-                  'subtotal'    => $subtotal
+                  'nome' => $variacaoEncontrada['nome'],
+                  'descricao' => $variacaoEncontrada['descricao'],
+                  'preco' => $variacaoEncontrada['preco'],
+                  'quantidade' => $quantidade,
+                  'subtotal' => $subtotal
                ];
             }
          }
@@ -146,12 +147,12 @@ class Eventos extends BaseController
          }
 
          $participantes[] = [
-            'idEvento'    => $input['idEvento'][$i],
-            'idVariacao'  => $input['idVariacao'][$i],
-            'nome'        => $nome,
-            'email'       => $input['email'][$i],
-            'telefone'    => $input['telefone'][$i],
-            'extras'      => $extras // array associativo com os campos extras
+            'idEvento' => $input['idEvento'][$i],
+            'idVariacao' => $input['idVariacao'][$i],
+            'nome' => $nome,
+            'email' => $input['email'][$i],
+            'telefone' => $input['telefone'][$i],
+            'extras' => $extras // array associativo com os campos extras
          ];
       }
 
@@ -244,10 +245,33 @@ class Eventos extends BaseController
 
    public function teste()
    {
-//      echo "<pre>";
-//      print_r($_POST);
+      $client = $this->request->getPost();
+      $carrinho = $this->session->get('carrinho');
+      $participantes = $this->session->get('participantes');
+
+      if(empty($participantes)){
+         return redirect()->to('login');
+      }
+
+      if(empty($carrinho)){
+         return redirect()->to('login');
+      }
+
+      $modelUser = new UsuarioModel();
+      $verificaDados= $modelUser->verificarOuCriarCliente(esc($client), $carrinho);
+
+
+      $data = [
+         'session' => $this->session->get('data'),
+         'vDados' => $verificaDados,
+         'client' => $client,
+         'carrinho' => $carrinho,
+         'participantes' => $participantes,
+      ];
 //      print_r($this->session->get('carrinho'));
 //      print_r($this->session->get('participantes'));
+
+      return $this->response->setJSON($data);
 
    }
 }

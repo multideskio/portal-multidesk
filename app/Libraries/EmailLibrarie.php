@@ -28,6 +28,11 @@ class EmailLibrarie
       $this->email->setTo($to);
       $this->email->setSubject($subject);
       $this->email->setMessage($message);
-      $this->email->send();
+
+      if ($this->email->send()) {
+         log_message('info', "Email enviado com sucesso para: {$to}, Assunto: {$subject}");
+      } else {
+         log_message('error', "Falha ao enviar email para: {$to}, Assunto: {$subject}. Erro: " . $this->email->printDebugger());
+      }
    }
 }

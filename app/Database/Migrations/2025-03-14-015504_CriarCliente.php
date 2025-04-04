@@ -17,10 +17,10 @@ class CriarCliente extends Migration
             'unsigned' => true,
             'auto_increment' => true,
          ],
-         'empresa_id' => [
-            'type' => 'INT',
-            'unsigned' => true,
-         ],
+//         'empresa_id' => [
+//            'type' => 'INT',
+//            'unsigned' => true,
+//         ],
          'usuario_id' => [
             'type' => 'INT',
             'unsigned' => true,
@@ -65,7 +65,8 @@ class CriarCliente extends Migration
       ]);
 
       $this->forge->addKey('id', true);
-      $this->forge->addForeignKey('empresa_id', 'empresas', 'id', 'CASCADE', 'CASCADE');
+      //$this->forge->addForeignKey('empresa_id', 'empresas', 'id', 'CASCADE', 'CASCADE');
+      $this->forge->addForeignKey('usuario_id', 'usuarios', 'id', 'CASCADE', 'CASCADE');
       $this->forge->createTable('clientes', true);
       $db->enableForeignKeyChecks();
    }
