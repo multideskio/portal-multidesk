@@ -2,10 +2,10 @@ name: PHP Composer
 
 on:
   pull_request:
-    branches: [ "develop" ]
+    branches: [ "dev" ]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -32,3 +32,13 @@ jobs:
       # Instala as dependências
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress
+
+      # Faz push para a branch main
+      - name: Push to main
+        if: ${{ github.ref == 'refs/heads/dev' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout main
+          git merge dev
+          git push origin main
