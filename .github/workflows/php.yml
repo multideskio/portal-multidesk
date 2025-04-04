@@ -40,15 +40,18 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Verifica se a branch main existe e realiza o checkout apropriado
+          # Verifica se a branch main existe e faz o checkout ou a cria
           if git show-ref --quiet refs/heads/main; then
             git checkout main
           else
             git checkout -b main origin/main || git checkout -b main
           fi
 
+          # Sincroniza localmente a branch remota com pull
+          git pull origin main --rebase
+
           # Faz o merge da branch dev na branch main
           git merge dev
 
           # Faz o push para a branch main no repositório remoto
-          git push origin main
+          git push origin main --force-with-lease
