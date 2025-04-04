@@ -1,68 +1,140 @@
-# CodeIgniter 4 Application Starter
+# 🎟️ Sistema de Venda de Ingressos com CodeIgniter 4
 
-## What is CodeIgniter?
+Este projeto é uma plataforma completa para gerenciamento e venda de ingressos para eventos como conferências, cursos, seminários, encontros e muito mais. Desenvolvido com **CodeIgniter 4**, **MySQL**, **Redis** e **MinIO**, o sistema oferece suporte completo a vendas com diferentes métodos de pagamento, gestão de participantes e checkout personalizado.
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](https://codeigniter.com).
+---
 
-This repository holds a composer-installable app starter.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
+## 🚀 Tecnologias Utilizadas
 
-More information about the plans for version 4 can be found in [CodeIgniter 4](https://forum.codeigniter.com/forumdisplay.php?fid=28) on the forums.
+- PHP 8.1 ou superior
+- CodeIgniter 4 (appstarter)
+- MySQL 8+
+- Redis (cache e filas)
+- MinIO (armazenamento de arquivos)
+- SweetAlert2 (alertas modernos)
+- jQuery + jQuery Mask (formatação de campos)
 
-You can read the [user guide](https://codeigniter.com/user_guide/)
-corresponding to the latest version of the framework.
+---
 
-## Installation & updates
+## 🧩 Principais Funcionalidades
 
-`composer create-project codeigniter4/appstarter` then `composer update` whenever
-there is a new release of the framework.
+### 🛒 Carrinho de Compras
+- Adição e remoção de variações de ingressos
+- Quantidade e valor total dinâmico
+- Participantes vinculados a variações
 
-When updating, check the release notes to see if there are any changes you might need to apply
-to your `app` folder. The affected files can be copied or merged from
-`vendor/codeigniter4/framework/app`.
+### 🧍 Cadastro de Participantes
+- Nome, e-mail, telefone e campos extras personalizados
+- Vínculo direto com o pedido e variação
 
-## Setup
+### 💳 Checkout
+- Formulário completo com:
+    - Nome completo
+    - CPF
+    - E-mail
+    - Telefone
+    - Endereço completo (CEP, rua, número, bairro, cidade, UF)
+- Formatações automáticas com jQuery Mask
+- Login com Google (via OAuth)
+- Opções de pagamento:
+    - Cartão de Crédito
+    - Pix (com integração via API Pix Sicredi)
+    - Pagamento na Entrega
 
-Copy `env` to `.env` and tailor for your app, specifically the baseURL
-and any database settings.
+### 🧾 Pedidos e Transações
+- Models e migrations para:
+    - `pedidos`
+    - `itens_pedido`
+    - `participantes`
+- Slug dinâmico salvo na sessão para controle de redirecionamento
+- Status inicial do pedido: `pendente`
 
-## Important Change with index.php
+---
 
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
+## 📦 Estrutura de Pastas
 
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
+```
+app/
+├── Controllers/
+├── Models/
+├── Views/
+│   └── public/
+├── Helpers/
+├── Config/
+├── Database/
+│   └── Migrations/
+public/
+├── assets/
+│   └── css, js, img
+```
 
-**Please** read the user guide for a better explanation of how CI4 works!
+---
 
-## Repository Management
+## 📄 Documentação de Releases
+Consulte o arquivo [`docs/release-notes.md`](docs/release-notes.md) para ver melhorias por versão, funcionalidades adicionadas e checklist.
 
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
+---
 
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
+## ⚙️ Instalação e Atualização
 
-## Server Requirements
+### Instalação com Composer
 
-PHP version 8.1 or higher is required, with the following extensions installed:
+```bash
+composer create-project codeigniter4/appstarter sistema-ingressos
+```
 
-- [intl](http://php.net/manual/en/intl.requirements.php)
-- [mbstring](http://php.net/manual/en/mbstring.installation.php)
+### Atualizações do Framework
 
-> [!WARNING]
-> - The end of life date for PHP 7.4 was November 28, 2022.
-> - The end of life date for PHP 8.0 was November 26, 2023.
-> - If you are still using PHP 7.4 or 8.0, you should upgrade immediately.
-> - The end of life date for PHP 8.1 will be December 31, 2025.
+```bash
+composer update
+```
 
-Additionally, make sure that the following extensions are enabled in your PHP:
+Ao atualizar, consulte os [release notes](https://codeigniter.com/user_guide/changelogs/index.html) para ver se há arquivos que precisam ser copiados ou mesclados com os seus arquivos locais.
 
-- json (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+---
+
+## 🔧 Configuração Inicial
+
+1. Copie o arquivo `.env`:
+```bash
+cp env .env
+```
+
+2. Configure os dados de ambiente no `.env`, como:
+    - baseURL
+    - Banco de dados
+    - Redis
+    - MinIO
+
+3. Rode as migrations:
+```bash
+php spark migrate
+```
+
+4. Inicie o servidor:
+```bash
+php spark serve
+```
+
+---
+
+## 🌐 Requisitos do Servidor
+
+- PHP 8.1 ou superior
+- Extensões PHP obrigatórias:
+    - intl
+    - mbstring
+    - json
+    - mysqlnd (para MySQL)
+    - libcurl (para requisições HTTP com CURL)
+
+---
+
+## 📃 Licença
+Este projeto está licenciado sob a MIT License.
+
+---
+
+Desenvolvido com ❤️ para facilitar a gestão de eventos e vendas de ingressos.
+
+Baseado no CodeIgniter 4 Starter App.
