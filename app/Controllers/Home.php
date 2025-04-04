@@ -22,11 +22,18 @@ class Home extends BaseController
       ];
 
       $cliente = [
-         'cpf'       => '12345678909',
-         'nome'      => 'João',
-         'sobrenome' => 'Silva',
-         'email'     => 'joao@email.com'
+         'cpf' => '19119119100',
+         'nome' => 'Test',
+         'sobrenome' => 'User',
+         'email' => 'payer@email.com',
+         'cep' => '06233200',
+         'logradouro' => 'Av. das Nações Unidas',
+         'numero' => '3003',
+         'bairro' => 'Bonfim',
+         'cidade' => 'Osasco',
+         'uf' => 'SP'
       ];
+
 
       try {
          $mp = new MPProcessor();

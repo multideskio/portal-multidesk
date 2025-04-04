@@ -70,9 +70,18 @@ class PixHandler
          "identification" => [
             "type" => "CPF",
             "number" => $cliente['cpf']
+         ],
+         "address" => [
+            "zip_code" => $cliente['cep'] ?? '06233200',
+            "street_name" => $cliente['logradouro'] ?? 'Av. das Nações Unidas',
+            "street_number" => $cliente['numero'] ?? '3003',
+            "neighborhood" => $cliente['bairro'] ?? 'Bonfim',
+            "city" => $cliente['cidade'] ?? 'Osasco',
+            "federal_unit" => $cliente['uf'] ?? 'SP'
          ]
       ];
    }
+
 
    /**
     * @throws JsonException
