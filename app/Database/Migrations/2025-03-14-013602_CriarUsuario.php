@@ -81,6 +81,10 @@ class CriarUsuario extends Migration
             'type' => 'TEXT',
             'null' => true,
          ],
+         'endereco' => [
+            'type' => 'JSON',
+            'null' => true,
+         ],
          'created_at' => [
             'type' => 'DATETIME',
             'null' => true,
