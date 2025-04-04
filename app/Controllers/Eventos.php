@@ -13,6 +13,7 @@ class Eventos extends BaseController
       $data['titulo'] = 'Evento';
       $data['descricao'] = 'Escolha seu ingresso';
       $data['slug'] = $slug;
+      $this->session->set('slug', $slug);
 
       // Criação do modelo
       $modelEvento = new EventosModel();
@@ -198,10 +199,12 @@ class Eventos extends BaseController
 
       // Se não houver carrinho ou não houver itens no carrinho
       if (!$carrinho || empty($carrinho['itens'])) {
-         return redirect()->to("evento/$slug")->with('erro', 'Seu carrinho está vazio. Escolha um ingresso.');
+         $slugs = $this->session->get('slug');
+         return redirect()->to("evento/$slugs")->with('erro', 'Seu carrinho está vazio. Escolha um ingresso.');
       }
 
-      return view('public/checkout');
+      $data['event'] = ['slug' => $slug];
+      return view('public/checkout', $data);
    }
 
    public function removerItem(): RedirectResponse
