@@ -47,12 +47,13 @@ $camposExtras = $evento['campos'] ?? []; // <-- ✅ Adicione esta linha
 
 <div class="container py-5">
     <div class="row g-4">
+        <div class="col-md-12">
+            <h2 class="fw-bold mb-4">👤 Participantes</h2>
+        </div>
         <!-- Coluna esquerda -->
         <div class="col-md-8">
-            <h2 class="fw-bold mb-4">👤 Participantes</h2>
             <div class="pe-2">
-               <form action="/confirmar-participantes/<?= esc($evento['slug']) ?>" method="post">
-
+                <?= form_open('confirmar-participantes/'.esc($evento['slug'])) ?>
                    <?php foreach ($itens as $key => $item): ?>
                       <?php for ($i = 1; $i <= $item['quantidade']; $i++): ?>
                            <div class="ticket-card mb-4">
