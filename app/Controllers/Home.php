@@ -2,17 +2,44 @@
 
 namespace App\Controllers;
 
+use App\Gateway\Mp\MPProcessor;
 use App\Libraries\GoogleAgendaLibrarie;
 use App\Libraries\GoogleMapsLibrarie;
+use App\Models\EmpresaGatewaysModel;
 use JsonException;
 
 class Home extends BaseController
 {
-   /**
-    * @throws JsonException
-    */
-   public function teste(): void
+   public function teste(): ?\CodeIgniter\HTTP\ResponseInterface
    {
+      $empresaId = 1;
+      $gateway   = 'mp';
+      $tipo      = 'pix';
+
+      $pedido = [
+         'valor'     => 49.90,
+         'descricao' => 'Ingresso para o Evento X'
+      ];
+
+      $cliente = [
+         'cpf'       => '12345678909',
+         'nome'      => 'João',
+         'sobrenome' => 'Silva',
+         'email'     => 'joao@email.com'
+      ];
+
+      try {
+         $mp = new MPProcessor();
+         $resposta = $mp->processar($tipo, $empresaId, $pedido, $cliente, $gateway);
+
+         return $this->response->setJSON($resposta);
+      } catch (\Throwable $e) {
+         return $this->response->setJSON([
+            'erro' => $e->getMessage()
+         ])->setStatusCode(500);
+      }
+   }
+
 
 //      $googleMapsLibrary = new GoogleMapsLibrarie();
 //
@@ -73,5 +100,5 @@ class Home extends BaseController
 //          echo "Erro ao criar evento: " . $response['message'];
 //       }
 
-   }
+//   }
 }
