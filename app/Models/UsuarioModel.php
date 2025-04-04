@@ -110,12 +110,8 @@ class UsuarioModel extends Model
     */
    private function criarClienteParaUsuario(array $data, array $user, ClienteModel $modelCliente): array|null
    {
-      // Obtém o primeiro nome a partir do campo 'nome'
       $nome = strtok($data['nome'], ' ') ?: '';
-
-      // Obtém o sobrenome a partir do campo 'nome'
       $sobrenome = trim(strstr($data['nome'], ' ', false)) ? ltrim(trim(strstr($data['nome'], ' ', false))) : '';
-      // Dados do cliente a serem inseridos
 
       $dataCliente = [
          'usuario_id' => $user['id'],
@@ -128,11 +124,12 @@ class UsuarioModel extends Model
       ];
 
       try {
-         // Insere o cliente no banco
          $modelCliente->insert($dataCliente);
          log_message('info', 'Cliente inserido com sucesso para o usuário ID: ' . $user['id']);
-         // Retorna o cliente criado
-         return $modelCliente->where('usuario_id', $user['id'])->first();
+         return [
+            'cliente' => $modelCliente->where('usuario_id', $user['id'])->first(),
+            'user' => $user
+         ];
       } catch (ReflectionException $e) {
          log_message('error', 'Erro ao inserir cliente: ' . $e->getMessage());
          throw new RuntimeException($e->getMessage());

@@ -3,8 +3,11 @@
 namespace App\Controllers;
 
 use App\Models\EventosModel;
+use App\Models\PedidoModel;
 use App\Models\UsuarioModel;
 use CodeIgniter\HTTP\RedirectResponse;
+use Random\RandomException;
+use ReflectionException;
 
 class Eventos extends BaseController
 {
@@ -243,7 +246,7 @@ class Eventos extends BaseController
    }
 
 
-   public function teste()
+   public function checkoutFinalizar()
    {
       $client = $this->request->getPost();
       $carrinho = $this->session->get('carrinho');
@@ -258,20 +261,54 @@ class Eventos extends BaseController
       }
 
       $modelUser = new UsuarioModel();
-      $verificaDados= $modelUser->verificarOuCriarCliente(esc($client), $carrinho);
 
+      try {
+         $verificaDados = $modelUser->verificarOuCriarCliente(esc($client), $carrinho);
+      } catch (RandomException|\ReflectionException $e) {
+         log_message('error', 'File: ' . __FILE__ . ' - Line: ' . __LINE__ . ' - Error: ' . $e->getMessage());
+         return redirect()->to('login');
+      }
+
+      $modelOrder = new PedidoModel();
+
+      // Total do pedido (obtido do carrinho)
+      $totalPedido = $carrinho['total'];
+      $eventoId = $carrinho['evento_id'];  // ID do evento
+      $metodoPagamento = $client['metodo_pagamento'];  // Méthodo de pagamento selecionado
+
+      try {
+         // Cria o pedido no banco e obtém o ID do pedido
+         $orderId = $modelOrder->createOrder(
+            $verificaDados['cliente']['id'],  // ID do cliente
+            $eventoId,       // ID do evento
+            $totalPedido,    // Total do pedido
+            $metodoPagamento // Méthodo de pagamento
+         );
+
+      } catch (\Exception $e) {
+         try {
+            $orderId = $modelOrder->createOrder(
+               $verificaDados['cliente']['id'],  // ID do cliente
+               $eventoId,       // ID do evento
+               $totalPedido,    // Total do pedido
+               $metodoPagamento // Méthodo de pagamento
+            );
+         } catch (\Exception $e) {
+            log_message('error', 'File: ' . __FILE__ . ' - Line: ' . __LINE__ . ' - Error: ' . $e->getMessage());
+            return $this->response->setJSON(['error' => $e->getMessage()]);
+         }
+      }
 
       $data = [
-         'session' => $this->session->get('data'),
+         //'session' => $this->session->get('data'),
          'vDados' => $verificaDados,
-         'client' => $client,
-         'carrinho' => $carrinho,
-         'participantes' => $participantes,
+         //'client' => $client,
+         //'carrinho' => $carrinho,
+         //'participantes' => $participantes,
       ];
-//      print_r($this->session->get('carrinho'));
-//      print_r($this->session->get('participantes'));
 
-      return $this->response->setJSON($data);
-
+      //return $this->response->setJSON($data);
+      echo "<pre>";
+      print_r($data);
    }
 }
