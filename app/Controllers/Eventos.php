@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\EventosModel;
 use App\Models\ItensPedidoModel;
+use App\Models\ParticipanteModel;
 use App\Models\PedidoModel;
 use App\Models\UsuarioModel;
 use CodeIgniter\HTTP\RedirectResponse;
@@ -303,12 +304,20 @@ class Eventos extends BaseController
       $modelItemPedido = new ItensPedidoModel(); // certifique-se que existe
       $modelItemPedido->cadastrarItens($carrinho, $orderId);
 
+      $modelParticipantes = new ParticipanteModel();
+      try {
+         $modelParticipantes->cadastrarParticipantesEIngressos($participantes, $orderId);
+      } catch (\JsonException $e) {
+         log_message('error', 'File: ' . __FILE__ . ' - Line: ' . __LINE__ . ' - Error: ' . $e->getMessage());
+         return $this->response->setJSON(['error' => $e->getMessage()]);
+      }
+
       $data = [
          //'session' => $this->session->get('data'),
          //'vDados' => $verificaDados,
          //'client' => $client,
-         'carrinho' => $carrinho,
-         //'participantes' => $participantes,
+         //'carrinho' => $carrinho,
+         'participantes' => $participantes,
       ];
 
       //return $this->response->setJSON($data);
