@@ -91,6 +91,7 @@ class EventosModel extends Model
    private function organizarEventos(array $resultados): array
    {
       $eventosAgrupados = [];
+
       foreach ($resultados as $evento) {
          $eventoId = $evento['id'];
 
@@ -103,6 +104,7 @@ class EventosModel extends Model
                'empresa_id' => $evento['empresa_id'] ?? "",
                'empresa_nome' => $evento['empresa_nome'] ?? "",
                'empresa_cnpj' => $evento['empresa_cnpj'] ?? "",
+               'campos' => json_decode($evento['campos'] ?? '[]', true), // ✅ Adicionando aqui
                'variacoes' => [],
             ];
          }
@@ -122,7 +124,7 @@ class EventosModel extends Model
          }
       }
 
-      return array_values($eventosAgrupados); // Return all grouped events
+      return array_values($eventosAgrupados);
    }
 
    public function getEventosPaginate($page = null, $order = null): array
