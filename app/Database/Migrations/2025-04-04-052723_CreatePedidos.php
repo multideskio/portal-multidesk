@@ -37,6 +37,12 @@ class CreatePedidos extends Migration
             'constraint' => 50,
             'null' => true
          ],
+         'slug' => [
+            'type'       => 'CHAR',
+            'constraint' => 36,
+            'null'       => false,
+            'unique'     => true,
+         ],
          'created_at' => [
             'type' => 'DATETIME',
             'null' => true,
@@ -52,7 +58,7 @@ class CreatePedidos extends Migration
       ]);
 
       $this->forge->addKey('id', true);
-      $this->forge->addForeignKey('cliente_id', 'usuarios', 'id', 'CASCADE', 'CASCADE');
+      $this->forge->addForeignKey('cliente_id', 'clientes', 'id', 'CASCADE', 'CASCADE');
       $this->forge->addForeignKey('evento_id', 'eventos', 'id', 'CASCADE', 'CASCADE');
       $this->forge->createTable('pedidos', true);
       $db->enableForeignKeyChecks();

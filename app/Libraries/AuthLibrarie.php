@@ -87,6 +87,34 @@ class AuthLibrarie
       $this->session->set(['data' => $data]);
    }
 
+   public function loginClienteNoPass(string $email): void
+   {
+      // Busca o cliente no banco de dados pelo e-mail fornecido
+      $cliente = $this->usuarioModel->where('email', $email)->findAll();
+
+      // Verifica se existe exatamente um cliente com o e-mail fornecido
+      if (count($cliente) !== 1) {
+         log_message('debug', "Cliente não foi encontrado ou há duplicidade de registros com o mesmo e-mail. Quantidade encontrada: " . count($cliente));
+         throw new RuntimeException('Cliente não encontrado');
+      }
+
+      $usuario = $cliente[0];
+
+      // Prepara os dados a serem armazenados na sessão
+      $data = [
+         'isLoggedIn' => true,
+         'id' => $usuario['id'],
+         'empresa' => $usuario['empresa_id'],
+         'nome' => $usuario['nome'],
+         'email' => $usuario['email'],
+         'foto' => $usuario['foto'],
+         'roles' => json_decode($usuario['roles']) ?? [] // Garante que 'roles' seja um array, mesmo se não definido
+      ];
+
+      // Armazena os dados na sessão
+      $this->session->set(['data' => $data]);
+   }
+
 
    public function loginGoogle($email): void
    {

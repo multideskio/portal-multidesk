@@ -3,7 +3,13 @@
 namespace App\Controllers;
 
 use App\Models\EventosModel;
+use App\Models\ItensPedidoModel;
+use App\Models\ParticipanteModel;
+use App\Models\PedidoModel;
+use App\Models\UsuarioModel;
 use CodeIgniter\HTTP\RedirectResponse;
+use Random\RandomException;
+use ReflectionException;
 
 class Eventos extends BaseController
 {
@@ -82,11 +88,11 @@ class Eventos extends BaseController
 
                $carrinho[$idVariacao] = [
                   'id_variacao' => $idVariacao,
-                  'nome'        => $variacaoEncontrada['nome'],
-                  'descricao'   => $variacaoEncontrada['descricao'],
-                  'preco'       => $variacaoEncontrada['preco'],
-                  'quantidade'  => $quantidade,
-                  'subtotal'    => $subtotal
+                  'nome' => $variacaoEncontrada['nome'],
+                  'descricao' => $variacaoEncontrada['descricao'],
+                  'preco' => $variacaoEncontrada['preco'],
+                  'quantidade' => $quantidade,
+                  'subtotal' => $subtotal
                ];
             }
          }
@@ -146,12 +152,12 @@ class Eventos extends BaseController
          }
 
          $participantes[] = [
-            'idEvento'    => $input['idEvento'][$i],
-            'idVariacao'  => $input['idVariacao'][$i],
-            'nome'        => $nome,
-            'email'       => $input['email'][$i],
-            'telefone'    => $input['telefone'][$i],
-            'extras'      => $extras // array associativo com os campos extras
+            'idEvento' => $input['idEvento'][$i],
+            'idVariacao' => $input['idVariacao'][$i],
+            'nome' => $nome,
+            'email' => $input['email'][$i],
+            'telefone' => $input['telefone'][$i],
+            'extras' => $extras // array associativo com os campos extras
          ];
       }
 
@@ -242,12 +248,80 @@ class Eventos extends BaseController
    }
 
 
-   public function teste()
+   public function checkoutFinalizar()
    {
-//      echo "<pre>";
-//      print_r($_POST);
-//      print_r($this->session->get('carrinho'));
-//      print_r($this->session->get('participantes'));
+      $client = $this->request->getPost();
+      $carrinho = $this->session->get('carrinho');
+      $participantes = $this->session->get('participantes');
 
+      if(empty($participantes)){
+         return redirect()->to('login');
+      }
+
+      if(empty($carrinho)){
+         return redirect()->to('login');
+      }
+
+      $modelUser = new UsuarioModel();
+
+      try {
+         $verificaDados = $modelUser->verificarOuCriarCliente(esc($client), $carrinho);
+      } catch (RandomException|\ReflectionException $e) {
+         log_message('error', 'File: ' . __FILE__ . ' - Line: ' . __LINE__ . ' - Error: ' . $e->getMessage());
+         return redirect()->to('login');
+      }
+
+      $modelOrder = new PedidoModel();
+
+      // Total do pedido (obtido do carrinho)
+      $totalPedido = $carrinho['total'];
+      $eventoId = $carrinho['evento_id'];  // ID do evento
+      $metodoPagamento = $client['metodo_pagamento'];  // Méthodo de pagamento selecionado
+
+      try {
+         // Cria o pedido no banco e obtém o ID do pedido
+         $orderId = $modelOrder->createOrder(
+            $verificaDados['cliente']['id'],  // ID do cliente
+            $eventoId,       // ID do evento
+            $totalPedido,    // Total do pedido
+            $metodoPagamento // Méthodo de pagamento
+         );
+
+      } catch (\Exception $e) {
+         try {
+            $orderId = $modelOrder->createOrder(
+               $verificaDados['cliente']['id'],  // ID do cliente
+               $eventoId,       // ID do evento
+               $totalPedido,    // Total do pedido
+               $metodoPagamento // Méthodo de pagamento
+            );
+         } catch (\Exception $e) {
+            log_message('error', 'File: ' . __FILE__ . ' - Line: ' . __LINE__ . ' - Error: ' . $e->getMessage());
+            return $this->response->setJSON(['error' => $e->getMessage()]);
+         }
+      }
+
+      $modelItemPedido = new ItensPedidoModel(); // certifique-se que existe
+      $modelItemPedido->cadastrarItens($carrinho, $orderId);
+
+      $modelParticipantes = new ParticipanteModel();
+      try {
+         $modelParticipantes->cadastrarParticipantesEIngressos($participantes, $orderId);
+      } catch (\JsonException $e) {
+         log_message('error', 'File: ' . __FILE__ . ' - Line: ' . __LINE__ . ' - Error: ' . $e->getMessage());
+         return $this->response->setJSON(['error' => $e->getMessage()]);
+      }
+
+      $data = [
+         //'session' => $this->session->get('data'),
+         //'vDados' => $verificaDados,
+         //'client' => $client,
+         //'carrinho' => $carrinho,
+         'participantes' => $participantes,
+      ];
+
+      //return $this->response->setJSON($data);
+      echo "<pre>";
+      print_r($data);
    }
 }

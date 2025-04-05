@@ -13,7 +13,7 @@ class ClienteModel extends Model
     protected $useSoftDeletes   = true;
     protected $protectFields    = true;
     protected $allowedFields    = [
-       'empresa_id',
+       'usuario_id',
        'nome',
        'sobrenome',
        'cpf',
@@ -22,6 +22,7 @@ class ClienteModel extends Model
        'senha',
        'token',
        'code',
+       'endereco',
        'verificado',
        'foto'
     ];

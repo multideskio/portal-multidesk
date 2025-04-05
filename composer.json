@@ -10,8 +10,9 @@
         "slack": "https://codeigniterchat.slack.com"
     },
     "require": {
-        "php": "^8.1",
+        "php": "^8.2",
         "codeigniter4/framework": "^4.0",
+        "endroid/qr-code": "^6.0",
         "google/apiclient": "^2.18",
         "mercadopago/dx-php": "^3.2.0",
         "ramsey/uuid": "^4.7"

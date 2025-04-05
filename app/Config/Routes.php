@@ -76,7 +76,7 @@ $routes->post("confirmar-participantes/(:segment)", 'Eventos::confirmParticipant
 
 $routes->get("checkout/(:segment)", 'Eventos::checkout/$1');
 
-$routes->post("checkout/processar", 'Eventos::teste');
+$routes->post("checkout/processar", 'Eventos::checkoutFinalizar');
 
 $routes->post('remover-item', 'Eventos::removerItem');
 
