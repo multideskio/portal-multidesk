@@ -49,6 +49,14 @@ $routes->group("admin", ['filter' => 'admin-auth'], static function ($routes) {
    });
 });
 
+
+$routes->group("c", ['filter' => 'admin-auth'], static function ($routes) {
+   $routes->get("home", 'Clientes\Home::index');
+});
+
+
+
+
 //ROUTS BACKEND API PROTECTED
 $routes->group("api/v1", ['filter' => 'admin-auth'], static function ($routes) {
    $routes->get("me", 'Admin\V1\Login::me');
