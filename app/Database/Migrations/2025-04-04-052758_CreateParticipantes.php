@@ -13,7 +13,9 @@ class CreateParticipantes extends Migration
 
       $this->forge->addField([
          'id' => [
-            'type' => 'SERIAL',
+            'type' => 'INT',
+            'unsigned' => true,
+            'auto_increment' => true,
          ],
          'nome' => [
             'type' => 'VARCHAR',
@@ -37,15 +39,15 @@ class CreateParticipantes extends Migration
             'comment' => 'Opcional, não utilizado como identificador único'
          ],
          'created_at' => [
-            'type' => 'TIMESTAMP',
+            'type' => 'DATETIME',
             'null' => true,
          ],
          'updated_at' => [
-            'type' => 'TIMESTAMP',
+            'type' => 'DATETIME',
             'null' => true,
          ],
          'deleted_at' => [
-            'type' => 'TIMESTAMP',
+            'type' => 'DATETIME',
             'null' => true,
          ]
       ]);
@@ -54,6 +56,7 @@ class CreateParticipantes extends Migration
       $this->forge->createTable('participantes', true);
 
       $db->enableForeignKeyChecks();
+
    }
 
    public function down()
