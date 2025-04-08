@@ -2,7 +2,6 @@
 FROM php:8.2-apache
 
 # Atualizar pacotes e instalar dependências
-# <-- necessário para PostgreSQL
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libicu-dev \
     libzip-dev \
@@ -15,9 +14,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libjpeg-dev \
     libwebp-dev \
     libmagickwand-dev \
-    libpq-dev \
     tzdata && \
     rm -rf /var/lib/apt/lists/*
+
 
 # Configurar o timezone da máquina para horário de Brasília
 RUN ln -sf /usr/share/zoneinfo/America/Sao_Paulo /etc/localtime && \
@@ -31,8 +30,7 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install -j$(nproc) gd
 
 # Instalar outras extensões PHP
-RUN docker-php-ext-install -j$(nproc) intl pdo_mysql zip mysqli \
-    && docker-php-ext-install -j$(nproc) pdo_pgsql pgsql  # <-- adiciona PostgreSQL
+RUN docker-php-ext-install -j$(nproc) intl pdo_mysql zip mysqli
 
 # Instalação do Redis
 RUN pecl install redis && docker-php-ext-enable redis
@@ -40,7 +38,6 @@ RUN pecl install redis && docker-php-ext-enable redis
 # Configurar o Git
 RUN git config --global --add safe.directory /var/www/html
 
-# Copiar o código do projeto
 COPY . /var/www/html
 
 # Habilitar mod_rewrite do Apache

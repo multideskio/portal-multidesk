@@ -12,23 +12,25 @@ class CreatePedidos extends Migration
       $db->disableForeignKeyChecks();
       $this->forge->addField([
          'id' => [
-            'type' => 'SERIAL',
+            'type' => 'INT',
+            'unsigned' => true,
+            'auto_increment' => true,
          ],
          'cliente_id' => [
-            'type' => 'INTEGER',
+            'type' => 'INT',
             'unsigned' => true,
          ],
          'evento_id' => [
-            'type' => 'INTEGER',
+            'type' => 'INT',
             'unsigned' => true,
          ],
          'status' => [
-            'type' => 'VARCHAR',
-            'constraint' => 20,
+            'type' => 'ENUM',
+            'constraint' => ['aguardando', 'pago', 'cancelado'],
             'default' => 'aguardando',
          ],
          'total' => [
-            'type' => 'NUMERIC',
+            'type' => 'DECIMAL',
             'constraint' => '10,2',
          ],
          'metodo_pagamento' => [
@@ -37,20 +39,21 @@ class CreatePedidos extends Migration
             'null' => true
          ],
          'slug' => [
-            'type' => 'UUID',
-            'null' => false,
-            'unique' => true,
+            'type'       => 'CHAR',
+            'constraint' => 36,
+            'null'       => false,
+            'unique'     => true,
          ],
          'created_at' => [
-            'type' => 'TIMESTAMP',
+            'type' => 'DATETIME',
             'null' => true,
          ],
          'updated_at' => [
-            'type' => 'TIMESTAMP',
+            'type' => 'DATETIME',
             'null' => true,
          ],
          'deleted_at' => [
-            'type' => 'TIMESTAMP',
+            'type' => 'DATETIME',
             'null' => true,
          ]
       ]);
