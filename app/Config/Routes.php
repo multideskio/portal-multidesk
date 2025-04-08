@@ -52,6 +52,7 @@ $routes->group("admin", ['filter' => 'admin-auth'], static function ($routes) {
 
 $routes->group("c", ['filter' => 'admin-auth'], static function ($routes) {
    $routes->get("home", 'Clientes\Home::index');
+   $routes->get("pedido/(:segment)", 'Clientes\Home::pedido/$1');
 });
 
 
