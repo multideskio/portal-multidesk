@@ -2,6 +2,7 @@
 FROM php:8.2-apache
 
 # Atualizar pacotes e instalar dependências
+# <-- necessário para PostgreSQL
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libicu-dev \
     libzip-dev \
@@ -14,7 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libjpeg-dev \
     libwebp-dev \
     libmagickwand-dev \
-    libpq-dev \  # <-- necessário para PostgreSQL
+    libpq-dev \
     tzdata && \
     rm -rf /var/lib/apt/lists/*
 
