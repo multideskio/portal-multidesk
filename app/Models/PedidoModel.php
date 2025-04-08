@@ -52,6 +52,15 @@ class PedidoModel extends Model
    protected $beforeDelete = [];
    protected $afterDelete = [];
 
+   public function atualizarStatus(int $idPedido, string $status): bool
+   {
+      return $this->update($idPedido, [
+         'status' => $status,
+         'updated_at' => date('Y-m-d H:i:s') // se tiver esse campo na tabela
+      ]);
+   }
+
+
    protected function beforeInsert($data): array{
       $data['data']['slug'] = Uuid::uuid4()->toString();
       return $data;
