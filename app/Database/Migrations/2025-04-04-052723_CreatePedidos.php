@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
@@ -11,25 +12,23 @@ class CreatePedidos extends Migration
       $db->disableForeignKeyChecks();
       $this->forge->addField([
          'id' => [
-            'type' => 'INT',
-            'unsigned' => true,
-            'auto_increment' => true,
+            'type' => 'SERIAL',
          ],
          'cliente_id' => [
-            'type' => 'INT',
+            'type' => 'INTEGER',
             'unsigned' => true,
          ],
          'evento_id' => [
-            'type' => 'INT',
+            'type' => 'INTEGER',
             'unsigned' => true,
          ],
          'status' => [
-            'type' => 'ENUM',
-            'constraint' => ['aguardando', 'pago', 'cancelado'],
+            'type' => 'VARCHAR',
+            'constraint' => 20,
             'default' => 'aguardando',
          ],
          'total' => [
-            'type' => 'DECIMAL',
+            'type' => 'NUMERIC',
             'constraint' => '10,2',
          ],
          'metodo_pagamento' => [
@@ -38,21 +37,20 @@ class CreatePedidos extends Migration
             'null' => true
          ],
          'slug' => [
-            'type'       => 'CHAR',
-            'constraint' => 36,
-            'null'       => false,
-            'unique'     => true,
+            'type' => 'UUID',
+            'null' => false,
+            'unique' => true,
          ],
          'created_at' => [
-            'type' => 'DATETIME',
+            'type' => 'TIMESTAMP',
             'null' => true,
          ],
          'updated_at' => [
-            'type' => 'DATETIME',
+            'type' => 'TIMESTAMP',
             'null' => true,
          ],
          'deleted_at' => [
-            'type' => 'DATETIME',
+            'type' => 'TIMESTAMP',
             'null' => true,
          ]
       ]);

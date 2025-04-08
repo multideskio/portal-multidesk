@@ -13,17 +13,13 @@ class CriarEventos extends Migration
       $db->disableForeignKeyChecks();
       $this->forge->addField([
          'id' => [
-            'type' => 'INT',
-            'unsigned' => true,
-            'auto_increment' => true,
+            'type' => 'SERIAL',
          ],
          'empresa_id' => [
-            'type' => 'INT',
-            'unsigned' => true,
+            'type' => 'INTEGER',
          ],
          'slug' => [
-            'type' => 'CHAR',
-            'constraint' => 36,
+            'type' => 'UUID',
             'unique' => true
          ],
          'titulo' => [
@@ -51,32 +47,32 @@ class CriarEventos extends Migration
             'null' => true,
          ],
          'status' => [
-            'type' => 'ENUM',
-            'constraint' => ['publicado', 'rascunho', 'cancelado'],
-            'default' => 'rascunho'
+            'type' => 'VARCHAR',
+            'constraint' => 20,
+            'default' => 'rascunho' // opções: 'publicado', 'rascunho', 'cancelado'
          ],
          'categoria' => [
-            'type' => 'ENUM',
-            'constraint' => ['evento', 'palestra', 'curso', 'outro'],
+            'type' => 'VARCHAR',
+            'constraint' => 20, // opções: 'evento', 'palestra', 'curso', 'outro'
          ],
          'data_inicio' => [
-            'type' => 'DATETIME',
+            'type' => 'TIMESTAMP',
             'null' => true,
          ],
          'data_fim' => [
-            'type' => 'DATETIME',
+            'type' => 'TIMESTAMP',
             'null' => true,
          ],
          'created_at' => [
-            'type' => 'DATETIME',
+            'type' => 'TIMESTAMP',
             'null' => true,
          ],
          'updated_at' => [
-            'type' => 'DATETIME',
+            'type' => 'TIMESTAMP',
             'null' => true,
          ],
          'deleted_at' => [
-            'type' => 'DATETIME',
+            'type' => 'TIMESTAMP',
             'null' => true,
          ]
       ]);
