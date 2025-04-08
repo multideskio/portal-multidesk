@@ -13,13 +13,10 @@ class CriarUsuario extends Migration
       $db->disableForeignKeyChecks();
       $this->forge->addField([
          'id' => [
-            'type' => 'INT',
-            'unsigned' => true,
-            'auto_increment' => true,
+            'type' => 'SERIAL',
          ],
          'empresa_id' => [
-            'type' => 'INT',
-            'unsigned' => true,
+            'type' => 'INTEGER',
          ],
          'nome' => [
             'type' => 'VARCHAR',
@@ -58,7 +55,7 @@ class CriarUsuario extends Migration
             'constraint' => 6,
          ],
          'verificado' => [
-            'type' => 'TINYINT',
+            'type' => 'SMALLINT',
             'constraint' => 1,
             'default' => 0,
          ],
@@ -68,7 +65,7 @@ class CriarUsuario extends Migration
             'null' => true,
          ],
          'roles' => [
-            'type' => 'JSON',
+            'type' => 'JSONB',
             'null' => true,
             'comment' => 'Modulos que deveram ser bloqueados no acesso do usuario, se não houve modulos bloqueados, todo o sistema é liberado.'
          ],
@@ -82,19 +79,19 @@ class CriarUsuario extends Migration
             'null' => true,
          ],
          'endereco' => [
-            'type' => 'JSON',
+            'type' => 'JSONB',
             'null' => true,
          ],
          'created_at' => [
-            'type' => 'DATETIME',
+            'type' => 'TIMESTAMP',
             'null' => true,
          ],
          'updated_at' => [
-            'type' => 'DATETIME',
+            'type' => 'TIMESTAMP',
             'null' => true,
          ],
          'deleted_at' => [
-            'type' => 'DATETIME',
+            'type' => 'TIMESTAMP',
             'null' => true,
          ]
       ]);

@@ -13,15 +13,14 @@ class CreateTransacao extends Migration
 
       $this->forge->addField([
          'id' => [
-            'type' => 'BIGINT',
-            'auto_increment' => true
+            'type' => 'SERIAL'
          ],
          'pedido_id' => [
-            'type' => 'int',
+            'type' => 'INTEGER',
             'unsigned' => true,
          ],
          'empresa_id' => [
-            'type' => 'int',
+            'type' => 'INTEGER',
             'unsigned' => true,
          ],
          'gateway' => [
@@ -37,7 +36,7 @@ class CreateTransacao extends Migration
             'constraint' => 50,
          ],
          'valor' => [
-            'type' => 'DECIMAL',
+            'type' => 'NUMERIC',
             'constraint' => '10,2',
          ],
          'moeda' => [
@@ -49,27 +48,27 @@ class CreateTransacao extends Migration
             'constraint' => 50,
          ],
          'detalhes_pagamento' => [
-            'type' => 'JSON',
+            'type' => 'JSONB',
             'null' => true,
          ],
          'payload' => [
-            'type' => 'JSON',
+            'type' => 'JSONB',
             'null' => true,
          ],
          'tentativa_webhook' => [
-            'type' => 'TINYINT',
+            'type' => 'SMALLINT',
             'default' => 0,
          ],
          'created_at' => [
-            'type' => 'DATETIME',
+            'type' => 'TIMESTAMP',
             'null' => true,
          ],
          'updated_at' => [
-            'type' => 'DATETIME',
+            'type' => 'TIMESTAMP',
             'null' => true,
          ],
          'deleted_at' => [
-            'type' => 'DATETIME',
+            'type' => 'TIMESTAMP',
             'null' => true,
          ]
       ]);

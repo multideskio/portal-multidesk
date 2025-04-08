@@ -13,17 +13,13 @@ class CriarCliente extends Migration
 
       $this->forge->addField([
          'id' => [
-            'type' => 'INT',
-            'unsigned' => true,
-            'auto_increment' => true,
+            'type' => 'SERIAL',
          ],
 //         'empresa_id' => [
 //            'type' => 'INT',
-//            'unsigned' => true,
 //         ],
          'usuario_id' => [
-            'type' => 'INT',
-            'unsigned' => true,
+            'type' => 'INTEGER',
          ],
          'nome' => [
             'type' => 'VARCHAR',
@@ -47,19 +43,19 @@ class CriarCliente extends Migration
             'constraint' => 30,
          ],
          'endereco' => [
-            'type' => 'JSON',
+            'type' => 'JSONB',
             'null' => true,
          ],
          'created_at' => [
-            'type' => 'DATETIME',
+            'type' => 'TIMESTAMP',
             'null' => true,
          ],
          'updated_at' => [
-            'type' => 'DATETIME',
+            'type' => 'TIMESTAMP',
             'null' => true,
          ],
          'deleted_at' => [
-            'type' => 'DATETIME',
+            'type' => 'TIMESTAMP',
             'null' => true,
          ]
       ]);

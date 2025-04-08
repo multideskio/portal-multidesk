@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
@@ -12,9 +13,7 @@ class CreateParticipantes extends Migration
 
       $this->forge->addField([
          'id' => [
-            'type' => 'INT',
-            'unsigned' => true,
-            'auto_increment' => true,
+            'type' => 'SERIAL',
          ],
          'nome' => [
             'type' => 'VARCHAR',
@@ -38,15 +37,15 @@ class CreateParticipantes extends Migration
             'comment' => 'Opcional, não utilizado como identificador único'
          ],
          'created_at' => [
-            'type' => 'DATETIME',
+            'type' => 'TIMESTAMP',
             'null' => true,
          ],
          'updated_at' => [
-            'type' => 'DATETIME',
+            'type' => 'TIMESTAMP',
             'null' => true,
          ],
          'deleted_at' => [
-            'type' => 'DATETIME',
+            'type' => 'TIMESTAMP',
             'null' => true,
          ]
       ]);
@@ -55,7 +54,6 @@ class CreateParticipantes extends Migration
       $this->forge->createTable('participantes', true);
 
       $db->enableForeignKeyChecks();
-
    }
 
    public function down()
