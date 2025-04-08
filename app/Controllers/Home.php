@@ -13,7 +13,7 @@ class Home extends BaseController
    public function teste(): ?\CodeIgniter\HTTP\ResponseInterface
    {
       $empresaId = 1;
-      $gateway   = 'mp';
+      $gateway   = 'mercadopago';
       $tipo      = 'pix';
 
       $pedido = [

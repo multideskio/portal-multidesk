@@ -19,7 +19,7 @@ class MPProcessor
     * Processa o pagamento com base no tipo (pix, card, etc)
     * @throws RuntimeException
     */
-   public function processar(string $tipo, int $empresaId, array $pedido, array $cliente, $gateway): \MercadoPago\Resources\Payment
+   public function processar(string $tipo, int $empresaId, array $pedido, array $cliente): \MercadoPago\Resources\Payment
    {
       // Validação do pedido e cliente
       if (!isset($pedido['valor']) || $pedido['valor'] <= 0) {
@@ -31,7 +31,7 @@ class MPProcessor
       }
 
       // Busca as credenciais ativas para o gateway
-      $credenciais = $this->gatewayModel->getCredenciaisAtivas($empresaId, $gateway);
+      $credenciais = $this->gatewayModel->getCredenciaisAtivas($empresaId, 'mercadopago');
 
       if (!$credenciais) {
          throw new RuntimeException("Credenciais do Mercado Pago não encontradas ou inativas.");

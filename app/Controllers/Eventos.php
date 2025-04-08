@@ -2,12 +2,19 @@
 
 namespace App\Controllers;
 
+use App\Gateway\Mp\MPProcessor;
+use App\Gateway\Mp\PixHandler;
+use App\Models\EmpresaGatewaysModel;
 use App\Models\EventosModel;
 use App\Models\ItensPedidoModel;
 use App\Models\ParticipanteModel;
 use App\Models\PedidoModel;
+use App\Models\TransacoesModel;
 use App\Models\UsuarioModel;
+use App\Services\PagamentoService;
 use CodeIgniter\HTTP\RedirectResponse;
+use CodeIgniter\HTTP\ResponseInterface;
+use Exception;
 use Random\RandomException;
 use ReflectionException;
 
@@ -312,16 +319,173 @@ class Eventos extends BaseController
          return $this->response->setJSON(['error' => $e->getMessage()]);
       }
 
+      $pagamento = $this->processarPagamento($client, $carrinho, $orderId);
+
+
       $data = [
          //'session' => $this->session->get('data'),
          //'vDados' => $verificaDados,
+         'pix' => $pagamento,
+         //'idPedido' => $orderId,
          //'client' => $client,
          //'carrinho' => $carrinho,
-         'participantes' => $participantes,
+         //'participantes' => $participantes,
       ];
 
-      //return $this->response->setJSON($data);
-      echo "<pre>";
-      print_r($data);
+      return $this->response->setJSON($data);
+     /* echo "<pre>";
+      print_r($data);*/
+   }
+
+
+   protected function getCredenciaisEmpresa(int $eventoId): array
+   {
+      $eventoModel = new EventosModel();
+      $evento = $eventoModel->find($eventoId);
+
+      if (!$evento) {
+         throw new \RuntimeException("Evento não encontrado.");
+      }
+
+      $empresaId = $evento['empresa_id'];
+
+      $gatewayModel = new EmpresaGatewaysModel();
+      $credenciais = $gatewayModel->where([
+         'empresa_id' => $empresaId,
+         'gateway' => 'mercadopago',
+         'ativo' => 1
+      ])->first();
+
+      if (!$credenciais) {
+         throw new \RuntimeException("Credenciais do Mercado Pago não encontradas para a empresa.");
+      }
+
+      if(!empty($credenciais['sandbox'])){
+         return [
+            'access_token' => $credenciais['access_token_test'],
+            'public_key' => $credenciais['public_key_test'] ?? null,
+            'empresa_id' => $empresaId,
+         ];
+      }
+
+      return [
+         'access_token' => $credenciais['access_token'],
+         'public_key' => $credenciais['public_key'] ?? null,
+         'empresa_id' => $empresaId,
+      ];
+   }
+
+
+   /**
+    * Realiza o processamento do pagamento baseado no método de pagamento informado pelo cliente.
+    *
+    * @param array $client Dados do cliente, incluindo nome, CPF, email, endereço e método de pagamento.
+    * @param array $carrinho Informações do carrinho, como ID do evento, valor total e detalhes do produto.
+    * @param int $idPedido ID único associado ao pedido a ser processado.
+    * @return bool|ResponseInterface Retorna true se o pagamento for processado com sucesso, ou um objeto JSON com mensagem de erro e código HTTP em caso de falha.
+    */
+   private function processarPagamento(array $client, array $carrinho, int $idPedido): bool|\CodeIgniter\HTTP\ResponseInterface
+   {
+      log_message('info', 'Iniciando processamento de pagamento para o pedido ID: ' . $idPedido);
+      $eventoId = (int) $carrinho['evento_id'];
+      try {
+         switch ($client['metodo_pagamento']) {
+            case 'pix':
+               log_message('info', 'Processando pagamento via PIX para o pedido ID: ' . $idPedido);
+               return (new PagamentoService())->processarPixMercadoPago($client, $carrinho, $idPedido, $this->getCredenciaisEmpresa($eventoId));
+               //return $this->processPixMp($client, $carrinho, $idPedido);
+
+            case 'credit_card':
+               log_message('info', 'Processando pagamento via cartão de crédito para o pedido ID: ' . $idPedido);
+               return $this->cartaoCredito($client, $carrinho, $idPedido);
+
+            case 'boleto':
+               log_message('info', 'Processando pagamento via boleto para o pedido ID: ' . $idPedido);
+               return $this->boleto($client, $carrinho, $idPedido);
+
+            default:
+               log_message('error', 'Método de pagamento inválido para o pedido ID: ' . $idPedido);
+               return $this->response->setJSON([
+                  'status' => 'erro',
+                  'mensagem' => 'Método de pagamento inválido.'
+               ])->setStatusCode(400);
+         }
+
+      } catch (Exception $e) {
+         log_message('error', 'Erro ao processar pagamento para o pedido ID: ' . $idPedido . '. Mensagem: ' . $e->getMessage());
+         return $this->response->setJSON([
+            'status' => 'erro',
+            'mensagem' => $e->getMessage()
+         ])->setStatusCode(500);
+      }
+   }
+
+   /**
+    * Processa o pagamento via PIX utilizando o gateway MercadoPago.
+    *
+    * @param array $client Informações do cliente, incluindo nome, CPF, email e endereço.
+    * @param array $carrinho Detalhes do carrinho, como ID do evento, valor total e título do evento.
+    * @param int $idPedido ID único do pedido a ser processado.
+    * @return bool Retorna true se o pagamento for processado com sucesso, ou false em caso de falha.
+    */
+   public function processPixMp(array $client, array $carrinho, int $idPedido): bool
+   {
+      $eventoId = (int) $carrinho['evento_id'];
+      $total = (float) $carrinho['total'];
+
+      // Buscar credenciais via evento → empresa → gateway
+      $credenciais = $this->getCredenciaisEmpresa($eventoId);
+
+      $empresaId = $credenciais['empresa_id'];
+      $gateway   = 'mercadopago';
+      $tipo      = 'pix';
+
+      $pedido = [
+         'valor'     => $carrinho['total'],
+         'descricao' => $carrinho['evento_titulo'],
+      ];
+      try{
+         $nome = strtok($client['nome'], ' ') ?: '';
+         $sobrenome = trim(strstr($client['nome'], ' ', false)) ? ltrim(trim(strstr($client['nome'], ' ', false))) : '';
+
+         $cliente = [
+            'cpf' => preg_replace('/\D/', '', $client['cpf']),
+            'nome' => $nome,
+            'sobrenome' => $sobrenome,
+            'email' => $client['email'],
+            'cep' => preg_replace('/\D/', '', $client['cep']),
+            'logradouro' => $client['rua'],
+            'numero' => $client['numero'],
+            'bairro' => $client['bairro'],
+            'cidade' => $client['cidade'],
+            'uf' => $client['uf'],
+         ];
+
+         $mp = new MPProcessor();
+         $resposta = $mp->processar($tipo, $empresaId, $pedido, $cliente, $gateway);
+
+
+         $modelTrans = new TransacoesModel();
+         $modelTrans->salvarTransacao($idPedido, $empresaId, $resposta);
+
+
+         return true;
+      }catch (\Exception $e){
+         log_message('error', 'Erro ao processar pagamento para o pedido ID: ' . $idPedido . '. Mensagem: ' . $e->getMessage());
+      return false;
+      }
+   }
+
+
+
+
+
+   private function cartaoCredito(array $client, array $carrinho, int $idPedido): true
+   {
+      return true;
+   }
+   private function boleto(array $client, array $carrinho, int $idPedido): true
+   {
+      return true;
    }
 }
