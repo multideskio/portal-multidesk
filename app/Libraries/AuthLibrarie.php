@@ -87,6 +87,9 @@ class AuthLibrarie
       $this->session->set(['data' => $data]);
    }
 
+   /**
+    * @throws JsonException
+    */
    public function loginClienteNoPass(string $email): void
    {
       // Busca o cliente no banco de dados pelo e-mail fornecido
@@ -108,7 +111,7 @@ class AuthLibrarie
          'nome' => $usuario['nome'],
          'email' => $usuario['email'],
          'foto' => $usuario['foto'],
-         'roles' => json_decode($usuario['roles']) ?? [] // Garante que 'roles' seja um array, mesmo se não definido
+         'roles' => $usuario['roles'] ? json_decode($usuario['roles'], true, '', JSON_THROW_ON_ERROR) : [] // Garante que 'roles' seja um array, mesmo se não definido
       ];
 
       // Armazena os dados na sessão

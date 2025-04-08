@@ -1,10 +1,10 @@
 <?= $this->extend('admin/template') ?>
 <?= $this->section('css') ?>
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.css" />
 <?= $this->endSection() ?>
 <?= $this->section('content') ?>
 <form autocomplete="off" class="needs-validation" novalidate method="post" action="/api/v1/eventos"
-      enctype="multipart/form-data">
+      enctype="multipart/form-data" id="form-create-curso">
     <div class="row">
         <div class="col-lg-9">
            <?php
@@ -18,9 +18,9 @@
             <div class="card">
                 <div class="card-body">
                     <div class="mb-3">
-                        <label for="titulo-curso" class="form-label fw-bold">Título do Curso</label>
-                        <input type="text" class="form-control" id="titulo-curso" name="titulo"
-                               placeholder="Título do Curso" required minlength="5" maxlength="80">
+                        <label for="titulo-curso" class="form-label fw-bold">Nome do evento ou curso presencial</label>
+                        <input type="text" class="form-control form-control-lg" id="titulo-curso" name="titulo"
+                               placeholder="Título nome do evento ou curso presencial" required minlength="5" maxlength="80">
                         <div class="invalid-feedback">Por favor, preencha o campo título.</div>
                     </div>
                     <div class="mb-3">
@@ -61,53 +61,54 @@
                         </button>
                     </div>
                     <div class="row" id="variacao-card">
-                        <div class="col-lg-4">
+                        <div class="col-lg-6">
                             <div class="card mb-1 shadow-lg border-black border-1">
                                 <div class="card-body p-3 mt-3">
                                     <div class="mb-3">
                                         <label for="titulo-variacao">Titulo da variação</label>
                                         <input type="text" class="form-control" name="titulo_variacao[]"
-                                               id="titulo-variacao">
+                                               id="titulo-variacao" placeholder="Lote 0" required minlength="5">
                                     </div>
                                     <div class="mb-3">
                                         <label for="desc-variacao">Descrição da variação</label>
-                                        <textarea type="text" class="form-control" name="desc_variacao[]"
-                                                  id="desc-variacao">
-                                        </textarea>
+                                        <textarea type="text" class="form-control" name="desc_variacao[]" id="desc-variacao" placeholder="Descreva essa variação"></textarea>
                                     </div>
                                     <div class="row mb-3">
                                         <div class="col-lg-6">
-                                            <label for="num_min">Minimo</label>
-                                            <input type="number" class="form-control" name="num_min[]" id="num_min">
+                                            <label for="num_min">Quantidade minima por pessoa</label>
+                                            <input type="number" class="form-control" name="num_min[]" id="num_min" placeholder="1" required>
                                         </div>
                                         <div class="col-lg-6">
-                                            <label for="num_max">Maximo</label>
-                                            <input type="number" class="form-control" name="num_max[]" id="num_max">
+                                            <label for="num_max">Quantidade Maxima por pessoa</label>
+                                            <input type="number" class="form-control" name="num_max[]" id="num_max" placeholder="10" required>
                                         </div>
                                     </div>
                                     <div class="row mb-3">
                                         <div class="col-lg-6">
-                                            <label for="date_var_start">Data e Hora de Início</label>
+                                            <label for="date_var_start">Início de vendas</label>
                                             <input type="datetime-local" class="form-control"
                                                    name="date_var_start[]" id="date_var_start"
-                                                   placeholder="Selecione a data e hora">
+                                                   placeholder="Selecione a data e hora" required>
                                         </div>
                                         <div class="col-lg-6">
-                                            <label for="date_var_end">Data e Hora de Fim</label>
+                                            <label for="date_var_end">Final de vendas</label>
                                             <input type="datetime-local" class="form-control"
                                                    name="date_var_end[]" id="date_var_end"
-                                                   placeholder="Selecione a data e hora">
+                                                   placeholder="Selecione a data e hora" required>
                                         </div>
                                     </div>
                                     <div class="row mb-3">
                                         <div class="col-lg-6">
                                             <label for="valor">Valor</label>
-                                            <input type="text" class="form-control" name="valor[]" id="valor">
+                                            <div class="input-group">
+                                            <span class="input-group-text">R$</span>
+                                                <input type="text" class="form-control" name="valor[]" id="valor" placeholder="100,00" required>
+                                            </div>
                                         </div>
                                         <div class="col-lg-6">
-                                            <label for="quantidade">Qtd</label>
+                                            <label for="quantidade">Quantidade disponivel</label>
                                             <input type="number" id="quantidade" name="quantidade[]"
-                                                   class="form-control" value="1">
+                                                   class="form-control" value="1" required>
                                         </div>
                                     </div>
                                     <div class="form-check form-switch form-switch-lg" dir="ltr">
@@ -160,13 +161,48 @@
                 </div>
             </div>
 
+            <!-- Card -->
             <div class="card">
                 <div class="card-header">
                     <h5 class="card-title mb-0">Capa para a página</h5>
                 </div>
                 <div class="card-body">
-                    <label for="cover-image" class="form-label">Imagem de capa</label>
-                    <input type="file" id="cover-image" name="cover-image" class="form-control">
+
+                    <!-- Preview da imagem recortada -->
+                    <img id="preview-cover-image" src="#" alt="Pré-visualização da imagem"
+                         class="img-fluid mb-3" style="display: none; max-height: 200px;">
+
+                    <!-- Botão para selecionar imagem -->
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('cover-image').click()">
+                        Selecionar imagem
+                    </button>
+
+                    <!-- Input original (sem name, usado apenas para selecionar) -->
+                    <input type="file" id="cover-image" accept="image/*" style="display: none;">
+
+                    <!-- Input hidden gerado automaticamente via JS com name="cover_image_base64" -->
+                    <!-- Será criado dinamicamente dentro do <form> pelo JS, não precisa estar aqui -->
+
+                </div>
+            </div>
+
+
+            <!-- Modal do Croppie -->
+            <div class="modal fade" id="cropModal" tabindex="-1" aria-labelledby="cropModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Editar imagem de capa</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <div id="croppie-container"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" id="crop-button" class="btn btn-primary">Recortar imagem</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -175,15 +211,11 @@
                     <h5 class="card-title mb-0">Datas de disponibilidade</h5>
                 </div>
                 <div class="card-body">
-                    <label for="start-datetime" class="form-label">Data e hora de início</label>
-                    <input type="text" id="start-datetime" name="start_vendas" class="form-control flatpickr-input"
-                           placeholder="Digite a data de início" data-provider="flatpickr"
-                           data-date-format="d/m/Y" data-enable-time="true" data-default-date="today" readonly required>
+                    <label for="start_vendas" class="form-label">Data e hora de início</label>
+                    <input type="datetime-local" name="start_vendas" id="start_vendas" class="form-control" required>
 
-                    <label for="end-datetime" class="form-label mt-3">Data e hora de final</label>
-                    <input type="text" id="end-datetime" class="form-control flatpickr-input"
-                           placeholder="Digite a data de final" name="end_vendas" data-provider="flatpickr"
-                           data-date-format="d/m/Y" data-enable-time="true" readonly required>
+                    <label for="end_vendas" class="form-label mt-3">Data e hora de final</label>
+                    <input type="datetime-local" name="end_vendas" id="end_vendas" class="form-control" required>
                 </div>
             </div>
         </div>
@@ -195,6 +227,114 @@
 
 <?= $this->endSection() ?>
 <?= $this->section('scripts') ?>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.js"
+        integrity="sha512-Gs+PsXsGkmr+15rqObPJbenQ2wB3qYvTHuJO6YJzPe/dTLvhy0fmae2BcnaozxDo5iaF8emzmCZWbQ1XXiX2Ig=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    let croppieInstance = null;
+
+    const coverInput = document.getElementById('cover-image');
+    const previewImage = document.getElementById('preview-cover-image');
+    const cropModalElement = document.getElementById('cropModal');
+    const cropModal = new bootstrap.Modal(cropModalElement);
+
+    /**
+     * Inicializa o Croppie com configurações fixas (proporção 1920x600)
+     */
+    function initializeCroppie(url) {
+        const container = document.getElementById('croppie-container');
+
+        if (croppieInstance) {
+            croppieInstance.destroy();
+            container.innerHTML = '';
+        }
+
+        croppieInstance = new Croppie(container, {
+            viewport: { width: 640, height: 200, type: 'square' }, // proporção 3.2
+            boundary: { width: 700, height: 300 },
+            enableResize: false,
+            enableZoom: true,
+            enforceBoundary: true,
+            enableOrientation: true
+        });
+
+        croppieInstance.bind({ url }).then(() => {
+            croppieInstance.setZoom(0.7); // Zoom inicial
+        }).catch(err => {
+            console.error("Erro ao carregar imagem no Croppie:", err);
+        });
+    }
+
+    /**
+     * Resultado do recorte: salva base64 no input hidden e mostra preview
+     */
+    function handleCropResult(base64) {
+        // Cria input hidden (se não existir)
+        let hiddenInput = document.getElementById('cover-image-base64');
+
+        if (!hiddenInput) {
+            hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'cover_image_base64';
+            hiddenInput.id = 'cover-image-base64';
+            document.querySelector('#form-create-curso').appendChild(hiddenInput);
+        }
+
+        hiddenInput.value = base64;
+
+        // Mostra preview no card
+        previewImage.src = base64;
+        previewImage.style.display = 'block';
+
+        console.log(base64);
+
+        // Fecha modal
+        cropModal.hide();
+    }
+
+    /**
+     * Ao selecionar imagem
+     */
+    coverInput.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (!file) {
+            console.warn("Nenhum arquivo selecionado");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const onModalShown = function () {
+                initializeCroppie(e.target.result);
+                cropModalElement.removeEventListener('shown.bs.modal', onModalShown);
+            };
+
+            cropModalElement.addEventListener('shown.bs.modal', onModalShown);
+            cropModal.show();
+        };
+
+        reader.onerror = (e) => {
+            console.error("Erro ao ler arquivo:", e);
+        };
+
+        reader.readAsDataURL(file);
+    });
+
+    /**
+     * Botão "Recortar imagem"
+     */
+    document.getElementById('crop-button').addEventListener('click', () => {
+        if (!croppieInstance) return;
+
+        croppieInstance.result({
+            type: 'base64',
+            size: { width: 1920, height: 600 }
+        }).then(handleCropResult);
+    });
+</script>
+
+
+
 <!-- Validations -->
 <script src="/assets/js/pages/form-validation.init.js"></script>
 
@@ -229,7 +369,7 @@
         let cardIndex = 0; // Para controlar o índice único de cada card criado
 
         function createCard(index) {
-            return `<div class="col-lg-4">
+            return `<div class="col-lg-6">
             <div class="card mb-1 shadow-lg border-black border-1">
                 <div class="card-body p-3">
                     <a type="button" class="remove-card">
@@ -237,39 +377,41 @@
                     </a>
                     <div class="mb-3">
                         <label for="titulo-variacao-${index}">Titulo da variação</label>
-                        <input type="text" class="form-control" name="titulo_variacao[]" id="titulo-variacao-${index}">
+                        <input type="text" class="form-control" name="titulo_variacao[]" id="titulo-variacao-${index}" placeholder="Lote ${++index}" required>
                     </div>
                     <div class="mb-3">
                         <label for="desc-variacao-${index}">Descrição da variação</label>
-                        <textarea type="text" class="form-control" name="desc_variacao[]" id="desc-variacao-${index}"></textarea>
+                        <textarea type="text" class="form-control" name="desc_variacao[]" id="desc-variacao-${index}" placeholder="Descreva essa variação"></textarea>
                     </div>
                     <div class="row mb-3">
                         <div class="col-lg-6">
-                            <label for="num_min-${index}">Minimo</label>
-                            <input type="number" class="form-control" name="num_min[]" id="num_min-${index}">
+                            <label for="num_min-${index}">Compra miníma</label>
+                            <input type="number" class="form-control" name="num_min[]" id="num_min-${index}" placeholder="1" required>
                         </div>
                         <div class="col-lg-6">
-                            <label for="num_max-${index}">Maximo</label>
-                            <input type="number" class="form-control" name="num_max[]" id="num_max-${index}">
+                            <label for="num_max-${index}">Compra máxima</label>
+                            <input type="number" class="form-control" name="num_max[]" id="num_max-${index}" placeholder="10" required>
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-lg-6">
-                            <label for="date_var_start-${index}">Data de inicio</label>
-                            <input type="datetime-local" class="form-control" name="date_var_start[]" id="date_var_start-${index}">
+                            <label for="date_var_start-${index}">Inicio de venda</label>
+                            <input type="datetime-local" class="form-control" name="date_var_start[]" id="date_var_start-${index}" required>
                         </div>
                         <div class="col-lg-6">
-                            <label for="date_var_end-${index}">Data de fim</label>
-                            <input type="datetime-local" class="form-control" name="date_var_end[]" id="date_var_end-${index}">
+                            <label for="date_var_end-${index}">Final de vendas</label>
+                            <input type="datetime-local" class="form-control" name="date_var_end[]" id="date_var_end-${index}" required>
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-lg-6">
                             <label for="valor-${index}">Valor</label>
-                            <input type="text" class="form-control" name="valor[]" id="valor-${index}">
+                            <div class="input-group">
+                                <span class="input-group-text">R$</span><input type="text" class="form-control" name="valor[]" id="valor-${index}" required placeholder="100,00">
+                            </div>
                         </div>
                         <div class="col-lg-6">
-                            <label for="quantidade-${index}">Qtd</label>
+                            <label for="quantidade-${index}">Quantidade disponível</label>
                             <input type="number" id="quantidade-${index}" name="quantidade[]" class="form-control" value="1">
                         </div>
                     </div>

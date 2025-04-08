@@ -4,10 +4,13 @@ namespace App\Controllers\Admin\V1;
 
 use App\Models\EventosModel;
 use App\Models\VariacoesModel;
+use App\Services\S3Services;
 use CodeIgniter\API\ResponseTrait;
+use CodeIgniter\Files\File;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\RESTful\ResourceController;
 use Exception;
+use PhpParser\Node\Stmt\TryCatch;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
@@ -103,6 +106,23 @@ class Eventos extends ResourceController
          }
          $this->variacoesModel->insertBatch($dataVariacao); // Inserção das variações em batch
          $db->transComplete();
+
+         $base64 = $this->request->getPost('cover_image_base64');
+         if (!empty($base64)) {
+            $empresaId = $this->session->get('data')['empresa']; // Obtém o ID da empresa da sessão
+            $eventoId = $id; // ID do evento recém-criado
+            $bucket = 'empresa-' . $empresaId; // Define o bucket do S3 com base no ID da empresa
+            $key = 'evento/' . $eventoId . '/' . uniqid('capa_', true) . '.jpg'; // Define a chave do objeto no bucket
+            // Salvar a imagem base64 temporariamente no servidor para envio ao S3
+            $data = explode(',', $base64); // Divide o base64 para obter apenas os dados da imagem
+            $imageData = base64_decode($data[1]); // Decodifica os dados base64 para o formato binário da imagem
+            $tmpPath = WRITEPATH . 'uploads/' . uniqid('tmp_capa_', true) . '.jpg'; // Caminho temporário para armazenar a imagem
+            file_put_contents($tmpPath, $imageData); // Salva os dados binários no arquivo temporário
+            $S3 = new S3Services(); // Instancia o serviço S3
+            $result = $S3->saveFile($bucket, $tmpPath, $key); // Envia o arquivo temporário ao S3
+            $nameFile = '/' . $bucket . '/' . $key; // Caminho completo da imagem no bucket
+            $this->eventosModel->update($eventoId, ['capa' => $nameFile]); // Atualiza o evento no banco com o caminho da capa
+         }
          //return $this->respond([$dataEvento, $dataVariacao]); // Retorna os dados inseridos
          return redirect()->back()->with('success', 'Evento criado com sucesso!');
       } catch (Exception $e) {
@@ -112,6 +132,11 @@ class Eventos extends ResourceController
       }
    }
 
+   /**
+    * @param $id
+    * @return ResponseInterface|string|void
+    * todo MVP
+    */
    public function edit($id = null)
    {
       //
@@ -119,12 +144,22 @@ class Eventos extends ResourceController
       return $this->respond($data);
    }
 
+   /**
+    * @param $id
+    * @return ResponseInterface|string|void
+    * todo MVP
+    */
    public function update($id = null)
    {
       $data = $this->request->getRawInput();
       return $this->respond($data);
    }
 
+   /**
+    * @param $id
+    * @return \CodeIgniter\HTTP\RedirectResponse|ResponseInterface|string|void
+    * todo MVP
+    */
    public function delete($id = null)
    {
       $this->eventosModel->delete($id);

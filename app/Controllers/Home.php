@@ -6,11 +6,35 @@ use App\Gateway\Mp\MPProcessor;
 use App\Libraries\GoogleAgendaLibrarie;
 use App\Libraries\GoogleMapsLibrarie;
 use App\Models\EmpresaGatewaysModel;
+use App\Services\S3Services;
 use JsonException;
 
 class Home extends BaseController
 {
-   public function teste(): ?\CodeIgniter\HTTP\ResponseInterface
+   public function teste(){
+      
+      if($this->request->getMethod() === 'POST'){
+         $s3 = new S3Services();
+
+         if (($file = $this->request->getFile('image')) && $file->isValid() && !$file->hasMoved()) {
+            $newName = 'qrcode/cliente/1/'.$file->getRandomName();
+            $send = $s3->saveFile('empresa-2', $file->getTempName(), $newName);
+
+//         echo "<pre>";
+//            print_r($send);
+//            echo "</pre>";
+
+            echo $send['@metadata']['effectiveUri'];
+         }
+         
+      }
+
+      echo '<form action="" method="POST" enctype="multipart/form-data">
+         <input type="file" name="image" accept="image/*">
+         <button type="submit">Enviar</button>
+      </form>';
+   }
+   public function teste00(): ?\CodeIgniter\HTTP\ResponseInterface
    {
       $empresaId = 1;
       $gateway   = 'mercadopago';

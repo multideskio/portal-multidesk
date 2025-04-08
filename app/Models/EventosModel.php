@@ -19,6 +19,7 @@ class EventosModel extends Model
       'descricao',
       'endereco',
       'campos',
+      'capa',
       'meta',
       'status',
       'data_inicio',

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Libraries;
+namespace App\Services;
 
 use Aws\Exception\AwsException;
 use Aws\Result;
@@ -51,31 +51,47 @@ class S3Services
    }
 
    /**
-    * Ensures that the specified S3 bucket exists, creating it if necessary.
+    * Garante que o bucket S3 especificado existe e está configurado adequadamente.
     *
-    * @param string $bucket The name of the S3 bucket to check or create.
+    * Verifica se o bucket existe. Se não existir, cria o bucket, aguarda sua disponibilidade,
+    * e aplica uma política pública para permitir acesso de leitura a todos os objetos nele contidos.
+    * Em caso de erro, registra e reencaminha a exceção.
     *
-    * @throws AwsException If an AWS-specific error occurs that is not related to the bucket not existing.
+    * @param string $bucket O nome do bucket que deverá ser verificado ou criado.
+    * @return void Este méthodo não retorna nenhum valor.
     */
-   protected function ensureBucketExists(string $bucket): void
+   public function ensureBucketExists(string $bucket): void
    {
       try {
-         // Verifica se o bucket existe tentando recuperar seus metadados.
          $this->s3->headBucket(['Bucket' => $bucket]);
       } catch (AwsException $e) {
-         // Se o bucket não for encontrado ou não existir, trata o erro criando o bucket.
          if ($e->getAwsErrorCode() === 'NotFound' || $e->getAwsErrorCode() === 'NoSuchBucket') {
-            // Cria o bucket.
             $this->s3->createBucket(['Bucket' => $bucket]);
-            // Aguarda até que o bucket seja confirmado como existente.
             $this->s3->waitUntil('BucketExists', ['Bucket' => $bucket]);
+
+            // Política pública para acesso a todos os objetos
+            $policy = json_encode([
+               'Version' => '2012-10-17',
+               'Statement' => [[
+                  'Effect' => 'Allow',
+                  'Principal' => '*',
+                  'Action' => ['s3:GetObject'],
+                  'Resource' => "arn:aws:s3:::$bucket/*"
+               ]]
+            ], JSON_THROW_ON_ERROR);
+
+            // Aplica a política ao bucket
+            $this->s3->putBucketPolicy([
+               'Bucket' => $bucket,
+               'Policy' => $policy
+            ]);
          } else {
-            // Lança a exceção para qualquer outro tipo de erro.
             log_message('error', 'Error creating bucket: ' . $e->getAwsErrorCode());
             throw $e;
          }
       }
    }
+
 
    protected function uploadObject(string $bucket, string $key, mixed $body, string $contentType = null): ?Result
    {
@@ -87,7 +103,7 @@ class S3Services
          $params = [
             'Bucket' => $bucket, // Define o nome do bucket
             'Key' => $key,    // Define a chave do objeto (nome/armazenação)
-            'Body' => $body,   // Define o conteúdo do objeto
+            'Body' => $body   // Define o conteúdo do objeto
          ];
 
          // Caso o tipo de conteúdo seja fornecido, adiciona aos parâmetros
@@ -146,22 +162,36 @@ class S3Services
    public function saveFile(string $bucket, string $filePath, string $key): ?Result
    {
       try {
-         // Cria uma instância do arquivo usando a classe File do CodeIgniter
-         $file = new File($filePath);
+         $this->ensureBucketExists($bucket);
 
-         // Obtém o conteúdo do arquivo
-         $fileContent = $file->openFile()->fread($file->getSize());
+         // Usa file_get_contents para arquivos temporários, incluindo base64 convertidos
+         $fileContent = file_get_contents($filePath);
 
-         // Detecta o tipo MIME automaticamente usando o método getMimeType
-         $mimeType = $file->getMimeType();
+         if (!$fileContent) {
+            log_message('error', 'Arquivo vazio ou ilegível: ' . $filePath);
+            return null;
+         }
 
-         // Faz o upload do arquivo para o S3
-         return $this->uploadObject($bucket, $key, $fileContent, $mimeType);
+         // Detecta o tipo MIME
+         $finfo = finfo_open(FILEINFO_MIME_TYPE);
+         $mimeType = finfo_file($finfo, $filePath);
+         finfo_close($finfo);
+
+         // Faz o upload
+         $result = $this->uploadObject($bucket, $key, $fileContent, $mimeType);
+
+         // Remove o arquivo temporário após o upload
+         if (file_exists($filePath)) {
+            unlink($filePath);
+         }
+
+         return $result;
       } catch (Exception $e) {
-         log_message('error', 'Error uploading file to S3: ' . $e->getMessage());
+         log_message('error', 'Erro ao enviar para o MinIO: ' . $e->getMessage());
          return null;
       }
    }
+
 
    /**
     * Retrieves a file from the specified S3 bucket.

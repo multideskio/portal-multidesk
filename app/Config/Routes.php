@@ -11,6 +11,7 @@ use CodeIgniter\Router\RouteCollection;
 $routes->get("/", 'Login::index');
 
 $routes->get("teste", 'Home::teste');
+$routes->post("teste", 'Home::teste');
 
 //Ações de login
 $routes->get("login", 'Login::index');
