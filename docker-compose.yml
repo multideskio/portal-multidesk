@@ -1,16 +1,28 @@
 version: '3.9'
 
 services:
-  db_multidesk:
-    image: mysql:8.0
-    container_name: mysql_db_multidesk
-    ports:
-      - "3306:3306"
+#  db_multidesk:
+#    image: mysql:8.0
+#    container_name: mysql_db_multidesk
+#    ports:
+#      - "3306:3306"
+#    environment:
+#      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+#      MYSQL_DATABASE: apiv1_multidesk
+#    volumes:
+#      - db_data_multidesk:/var/lib/mysql
+
+  postgres_multidesk:
+    image: postgres:17
+    container_name: codeigniter_pgsql
     environment:
-      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-      MYSQL_DATABASE: apiv1_multidesk
+      POSTGRES_USER: ci_user
+      POSTGRES_PASSWORD: ci_pass
+      POSTGRES_DB: ci_db
+    ports:
+      - "5432:5432"
     volumes:
-      - db_data_multidesk:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
 
   minio_multidesk:
     image: minio/minio:latest
@@ -48,6 +60,7 @@ services:
 
 volumes:
   db_data_multidesk:
+  postgres_data:
   redis_data_multidesk:
   minio_data_multidesk:
   minio-policies_multidesk:
