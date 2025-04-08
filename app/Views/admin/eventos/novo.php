@@ -6,7 +6,7 @@
 <form autocomplete="off" class="needs-validation" novalidate method="post" action="/api/v1/eventos"
       enctype="multipart/form-data" id="form-create-curso">
     <div class="row">
-        <div class="col-lg-9">
+        <div class="col-xl-8">
            <?php
            if (session()->getFlashdata('success')) {
               echo '<div class="alert alert-success">' . session()->getFlashdata('success') . '</div>';
@@ -61,7 +61,7 @@
                         </button>
                     </div>
                     <div class="row" id="variacao-card">
-                        <div class="col-lg-6">
+                        <div class="col-xl-6">
                             <div class="card mb-1 shadow-lg border-black border-1">
                                 <div class="card-body p-3 mt-3">
                                     <div class="mb-3">
@@ -128,7 +128,7 @@
         </div>
         <!-- end col -->
 
-        <div class="col-lg-3">
+        <div class="col-xl-4">
             <div class="card">
                 <div class="card-header">
                     <h5 class="card-title mb-0">Publicar</h5>
@@ -369,7 +369,7 @@
         let cardIndex = 0; // Para controlar o índice único de cada card criado
 
         function createCard(index) {
-            return `<div class="col-lg-6">
+            return `<div class="col-xl-6">
             <div class="card mb-1 shadow-lg border-black border-1">
                 <div class="card-body p-3">
                     <a type="button" class="remove-card">
