@@ -45,6 +45,7 @@ class CriarUsuario extends Migration
          'senha' => [
             'type' => 'VARCHAR',
             'constraint' => 255,
+            'null' => true,
          ],
          'token' => [
             'type' => 'VARCHAR',
