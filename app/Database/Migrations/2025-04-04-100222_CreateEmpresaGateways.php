@@ -12,13 +12,10 @@ class CreateEmpresaGateways extends Migration
       $db->disableForeignKeyChecks();
       $this->forge->addField([
          'id' => [
-            'type' => 'INT',
-            'auto_increment' => true,
-            'unsigned' => true
+            'type' => 'SERIAL',
          ],
          'empresa_id' => [
-            'type' => 'INT',
-            'unsigned' => true
+            'type' => 'INTEGER',
          ],
          'sandbox' => [
             'type' => 'BOOLEAN',
@@ -60,15 +57,15 @@ class CreateEmpresaGateways extends Migration
             'default' => false
          ],
          'created_at' => [
-            'type' => 'DATETIME',
+            'type' => 'TIMESTAMP',
             'null' => true
          ],
          'updated_at' => [
-            'type' => 'DATETIME',
+            'type' => 'TIMESTAMP',
             'null' => true
          ],
          'deleted_at' => [
-            'type' => 'DATETIME',
+            'type' => 'TIMESTAMP',
             'null' => true
          ],
       ]);

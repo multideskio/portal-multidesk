@@ -12,9 +12,7 @@ class CriarEmpresa extends Migration
       $db->disableForeignKeyChecks();
       $this->forge->addField([
          'id' => [
-            'type' => 'INT',
-            'unsigned' => true,
-            'auto_increment' => true,
+            'type' => 'SERIAL',
          ],
          'nome' => [
             'type' => 'VARCHAR',
@@ -36,19 +34,19 @@ class CriarEmpresa extends Migration
             'null' => true,
          ],
          'endereco' => [
-            'type' => 'JSON',
+            'type' => 'JSONB',
             'null' => true,
          ],
          'created_at' => [
-            'type' => 'DATETIME',
+            'type' => 'TIMESTAMP',
             'null' => true,
          ],
          'updated_at' => [
-            'type' => 'DATETIME',
+            'type' => 'TIMESTAMP',
             'null' => true,
          ],
          'deleted_at' => [
-            'type' => 'DATETIME',
+            'type' => 'TIMESTAMP',
             'null' => true,
          ]
       ]);
