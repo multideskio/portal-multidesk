@@ -100,7 +100,9 @@ class ParticipanteModel extends Model
 //         $fileRemove = FCPATH . '/assets/qrcodes/' . $participanteId."_".$pedidoId . '/';
 //         $qrLibrary->apagarPastaComConteudo($fileRemove);
 
-         $qrPath = $qrLibrary->gerarQrCode($uuid, $url, $participanteId."_".$pedidoId);
+         //$qrPath = $qrLibrary->gerarQrCode($uuid, $url, $participanteId."_".$pedidoId);
+
+         $qrPath = $qrLibrary->gerarQrCodeEEnviarParaS3($uuid, $url, 'participante/'.$participanteId."/".$pedidoId, $pedidoId );
 
          // Monta dados do ingresso
          $dataIngresso[] = [

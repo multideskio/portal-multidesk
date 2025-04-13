@@ -4,7 +4,7 @@ namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
-class CriarVariacoesEventos extends Migration
+class CriarUsuario extends Migration
 {
    public function up()
    {
@@ -17,48 +17,72 @@ class CriarVariacoesEventos extends Migration
             'unsigned' => true,
             'auto_increment' => true,
          ],
-         'evento_id' => [
+         'empresa_id' => [
             'type' => 'INT',
             'unsigned' => true,
          ],
-         'titulo' => [
+         'nome' => [
             'type' => 'VARCHAR',
             'constraint' => 80,
+            'null' => true,
          ],
-         'descricao' => [
+         'sobrenome' => [
+            'type' => 'VARCHAR',
+            'constraint' => 80,
+            'null' => true,
+         ],
+         'telefone' => [
+            'type' => 'VARCHAR',
+            'constraint' => 30,
+            'null' => true,
+         ],
+         'cpf' => [
+            'type' => 'VARCHAR',
+            'constraint' => 30,
+            'null' => true,
+         ],
+         'email' => [
+            'type' => 'VARCHAR',
+            'constraint' => 80
+         ],
+         'senha' => [
+            'type' => 'VARCHAR',
+            'constraint' => 255,
+         ],
+         'token' => [
+            'type' => 'VARCHAR',
+            'constraint' => 255,
+         ],
+         'code' => [
+            'type' => 'VARCHAR',
+            'constraint' => 6,
+         ],
+         'verificado' => [
+            'type' => 'TINYINT',
+            'constraint' => 1,
+            'default' => 0,
+         ],
+         'foto' => [
+            'type' => 'VARCHAR',
+            'constraint' => 255,
+            'null' => true,
+         ],
+         'roles' => [
+            'type' => 'JSON',
+            'null' => true,
+            'comment' => 'Modulos que deveram ser bloqueados no acesso do usuario, se não houve modulos bloqueados, todo o sistema é liberado.'
+         ],
+         'google_id' => [
+            'type' => 'VARCHAR',
+            'constraint' => 255,
+            'null' => true,
+         ],
+         'refresh_token' => [
             'type' => 'TEXT',
             'null' => true,
          ],
-         'valor' => [
-            'type' => 'DECIMAL',
-            'constraint' => '10,2',
-         ],
-         'quantidade' => [
-            'type' => 'INT',
-            'constraint' => 11,
-            'COMMENT' => 'Quantidade de ingressos disponiveis'
-         ],
-         'minimo' => [
-            'type' => 'INT',
-            'constraint' => 11,
-            'COMMENT' => 'Quantidade minima de ingressos para um cliente'
-         ],
-         'maximo' => [
-            'type' => 'INT',
-            'constraint' => 11,
-            'COMMENT' => 'Quantidade maxima de ingressos para um cliente'
-         ],
-         'ativo' => [
-            'type' => 'TINYINT',
-            'constraint' => 1,
-            'default' => 1,
-         ],
-         'data_inicio' => [
-            'type' => 'DATETIME',
-            'null' => true,
-         ],
-         'data_fim' => [
-            'type' => 'DATETIME',
+         'endereco' => [
+            'type' => 'JSON',
             'null' => true,
          ],
          'created_at' => [
@@ -75,17 +99,16 @@ class CriarVariacoesEventos extends Migration
          ]
       ]);
       $this->forge->addKey('id', true);
-      $this->forge->addForeignKey('evento_id', 'eventos', 'id', 'CASCADE', 'CASCADE');
-      $this->forge->createTable('variacoes_eventos', true);
+      $this->forge->addForeignKey('empresa_id', 'empresas', 'id', 'CASCADE', 'CASCADE');
+      $this->forge->createTable('usuarios', true);
       $db->enableForeignKeyChecks();
    }
 
    public function down()
    {
-      //
       $db = db_connect();
       $db->disableForeignKeyChecks();
-      $this->forge->dropTable('variacoes_eventos', true);
+      $this->forge->dropTable('usuarios', true);
       $db->enableForeignKeyChecks();
    }
 }
